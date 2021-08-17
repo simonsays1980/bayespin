@@ -6,7 +6,7 @@
   ## Transform parameters ##
   lalpha 		<- exp(par[1])/(1 + exp(par[1]))
   lepsilon 	<- par[2]
-  lmu 		<- par[3]
+  lmu 		  <- par[3]
   
   ## Allocate containers to hold values ##
   tradeter1 	<- matrix(0, NROW(data), 1)
@@ -26,6 +26,8 @@
   likl <- sum(log((sum1 + sum2)))
   if(method == "approx") {
     likl[likl == -Inf] <- -1e+6
+    likl[likl == Inf]  <- 1e+6
+    likl[likl == NaN]  <- 1e+6
   }
   
   return(likl)
@@ -69,6 +71,8 @@
   likl        <- sum(log(sum1 + sum2 + sum3))
   if (method == "approx") {
     likl[likl == -Inf] <- -1e+6
+    likl[likl == Inf]  <- 1e+6
+    likl[likl == NaN]  <- 1e+6
   }
   return(likl)
 }
@@ -107,9 +111,9 @@
   # }
     
   if (method == "approx") {
-    likl[likl == -Inf]  <- -1e+6
-    likl[likl == Inf] <- 1e+6
-    likl[likl == NaN] <- 1e+6
+    likl[likl == -Inf] <- -1e+6
+    likl[likl == Inf]  <- 1e+6
+    likl[likl == NaN]  <- 1e+6
   }
 
   return(likl)
