@@ -1,4 +1,4 @@
-"computeKokotLik" <- function(data, par, T, methodLik = c("precise", "approx")) {
+"computeCompLik" <- function(data, par, T, methodLik = c("precise", "approx")) {
   
   ## Check if correct argument is given ##
   method <- match.arg(methodLik)
@@ -101,14 +101,6 @@
   ter2    <- ter2 + lalpha * ldelta * exp((-1) * lmu * T) * x^(buys - M) + (1 - lalpha) * x^(trades - M)
   
   likl    <- sum(ter1, na.rm = TRUE) + sum(log(ter2), na.rm = TRUE)
-  # if (is.nan(likl) || is.infinite(likl))
-  # {
-  #   cat('\talpha:', lalpha)
-  #   cat('\teps:',lepsilon)
-  #   cat('\tdelta:',ldelta)
-  #   cat('\tmu:',lmu)
-  #   cat('\t likl before:', likl)
-  # }
     
   if (method == "approx") {
     likl[likl == -Inf] <- -1e+6

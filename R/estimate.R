@@ -1,5 +1,5 @@
 
-"estimate_pin" <- function(pin_data)
+"estimate_pin" <- function(pin_data, return_mcmc=FALSE, with_stephens=FALSE)
   {
     # Create `fdata` object with dimension `r=1`.
     pin_fdata <- finmix::fdata(matrix(pin_data), type='discrete', r=1)
@@ -16,6 +16,7 @@
     # and a burnin of 1,000. Allow random permutations of labels and do 
     # not store the indicators `S`.
     pin_mcmc <- finmix::mcmc(burnin=1000, M=10000, ranperm=TRUE, storeS=FALSE, storepost=FALSE)
+    if (with_stephens) pin_mcmc@storepost <- TRUE
     
     # Generate starting parameters for the indicators `S`.
     (pin_fdata~pin_model~pin_mcmc) %=% finmix::mcmcstart(fdata=pin_fdata, model=pin_model, pin_mcmc)
@@ -25,11 +26,44 @@
     
     # Estimate the parameters. 
     pin_parestimates <- finmix::mcmcestimate(pin_results)
-    
     # Calculate the PIN estimates.
     pin_estimates <- compute_bayespin(pin_parestimates)
+    if (with_stephens) 
+    {
+      
+      tryCatch(
+        {
+          pin_parestimates_stephens1997a <- finmix::mcmcestimate(pin_results, method='Stephens1997a')
+          pin_estimates_stephens1997a    <- compute_bayespin(pin_parestimates_stephens1997a)[1,9:12]
+          colnames(pin_estimates_stephens1997a) <- c('alpha_ieavg_stephens1997a', 'epislon_ieavg_stephens1997a',
+                                                     'mu_ieavg_stephens1997a', 'pin_ieavg_stephens1997a')
+          pin_estimates <- cbind(pin_estimates, pin_estimates_stephens1997a)
+        },
+        error= function(err)
+        {
+          print(err)
+          pin_estimates <- cbind(pin_estimates, pin_estimates[1,9:12])
+        },
+        warning=function(warn)
+        {}
+      )
+      
+      # Stephens1997b needs the data to draw conclusion about the labels.
+      pin_parestimates_stephens1997b <- finmix::mcmcestimate(pin_results, method='Stephens1997b', 
+                                                             fdata=pin_fdata)
+      pin_estimates_stephens1997b    <- compute_bayespin(pin_parestimates_stephens1997b)[1,9:12]
+      colnames(pin_estimates_stephens1997b) <- c('alpha_ieavg_stephens1997a', 'epislon_ieavg_stephens1997a',
+                                                    'mu_ieavg_stephens1997a', 'pin_ieavg_stephens1997a')
+      pin_estimates <- cbind(pin_estimates, pin_estimates_stephens1997b)
+    }
     
-    return(pin_estimates)
+    if (return_mcmc) 
+    {
+      return(list("pin_estimates"=pin_estimates, "pin_results"=pin_results))
+    } else 
+    {
+      return(pin_estimates)
+    }
 }
 
 "compute_bayespin" <- function(pin_estimates, params=TRUE)
@@ -81,7 +115,7 @@
 
 "estimate_mlekop" <- function(data, startpar, T = 390, methodLik = c("precise", "approx"),
                               fnLik = c("computeEKOPLik", "computeEKOPOrigLik"), 
-                              sim = FALSE, mis = FALSE, mis.prob, misInd, fnscale=-0.05,
+                              sim = FALSE, mis = FALSE, mis.prob, misInd, fnscale=-1,
                               trace=0, grad_free=TRUE) 
 {
   fnLik <- match.arg(fnLik)
@@ -123,9 +157,9 @@
   return(optim_res)	
 }
 
-"estimate_mlkokot" <- function(data, startpar, T = 390, methodLik = c("precise", "approx"),
-                                sim = FALSE, mis = FALSE, mis.prob, misInd, fnscale=-0.05,
-                                trace=0, grad_free=TRUE) 
+"estimate_compml" <- function(data, startpar, T = 390, methodLik = c("precise", "approx"),
+                              sim = FALSE, mis = FALSE, mis.prob, misInd, fnscale=-1,
+                              trace=0, grad_free=TRUE) 
 {
   if (missing(startpar)) {
     if (trace > 0)
@@ -137,7 +171,7 @@
   }
   
   ## optimization settings ##
-  optim_fn 	    <- computeKokotLik
+  optim_fn 	    <- computeCompLik
   optim_Method 	<- "L-BFGS-B"
   optim_lower 	<- c(-1e+6, 1e-6, 1e-6)
   optim_upper 	<- c(1e+6, 1e+6, 1e+6)
