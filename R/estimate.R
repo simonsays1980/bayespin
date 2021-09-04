@@ -1,5 +1,6 @@
 
-"estimate_pin" <- function(pin_data, return_mcmc=FALSE, with_stephens=FALSE)
+"estimate_pin" <- function(pin_data, return_mcmc=FALSE, with_stephens=FALSE, 
+                           opt_ctrl=list(max_iter=200L))
   {
     # Create `fdata` object with dimension `r=1`.
     pin_fdata <- finmix::fdata(matrix(pin_data), type='discrete', r=1)
@@ -25,7 +26,7 @@
     pin_results <- finmix::mixturemcmc(fdata=pin_fdata, model=pin_model, prior=pin_prior, mcmc=pin_mcmc)
     
     # Estimate the parameters. 
-    pin_parestimates <- finmix::mcmcestimate(pin_results)
+    pin_parestimates <- finmix::mcmcestimate(pin_results, opt_ctrl=opt_ctrl)
     # Calculate the PIN estimates.
     pin_estimates <- compute_bayespin(pin_parestimates)
     if (with_stephens) 
@@ -35,26 +36,35 @@
         {
           pin_parestimates_stephens1997a <- finmix::mcmcestimate(pin_results, method='Stephens1997a')
           pin_estimates_stephens1997a    <- compute_bayespin(pin_parestimates_stephens1997a)[1,9:12]
-          colnames(pin_estimates_stephens1997a) <- c('alpha_ieavg_stephens1997a', 'epislon_ieavg_stephens1997a',
+          colnames(pin_estimates_stephens1997a) <- c('alpha_ieavg_stephens1997a', 'epsilon_ieavg_stephens1997a',
                                                      'mu_ieavg_stephens1997a', 'pin_ieavg_stephens1997a')
           pin_estimates <- cbind(pin_estimates, pin_estimates_stephens1997a)
         },
         error= function(err)
         {
           print(err)
-          pin_estimates <- cbind(pin_estimates, pin_estimates[1,9:12])
+          pin_estimates <- cbind(pin_estimates, rep(NA, 4))
         },
-        warning=function(warn)
-        {}
+        warning=function(warn) {}
       )
       
-      # Stephens1997b needs the data to draw conclusion about the labels.
-      pin_parestimates_stephens1997b <- finmix::mcmcestimate(pin_results, method='Stephens1997b', 
-                                                             fdata=pin_fdata)
-      pin_estimates_stephens1997b    <- compute_bayespin(pin_parestimates_stephens1997b)[1,9:12]
-      colnames(pin_estimates_stephens1997b) <- c('alpha_ieavg_stephens1997a', 'epislon_ieavg_stephens1997a',
-                                                    'mu_ieavg_stephens1997a', 'pin_ieavg_stephens1997a')
-      pin_estimates <- cbind(pin_estimates, pin_estimates_stephens1997b)
+      tryCatch(
+        {
+          # Stephens1997b needs the data to draw conclusion about the labels.
+          pin_parestimates_stephens1997b <- finmix::mcmcestimate(pin_results, method='Stephens1997b', 
+                                                                 fdata=pin_fdata)
+          pin_estimates_stephens1997b    <- compute_bayespin(pin_parestimates_stephens1997b)[1,9:12]
+          colnames(pin_estimates_stephens1997b) <- c('alpha_ieavg_stephens1997a', 'epislon_ieavg_stephens1997a',
+                                                     'mu_ieavg_stephens1997a', 'pin_ieavg_stephens1997a')
+          pin_estimates <- cbind(pin_estimates, pin_estimates_stephens1997b)
+        },
+        error = function(err)
+        {
+          print(err)
+          pin_estimates <- cbind(pin_estimates, rep(NA, 4))
+        },
+        warning=function(warn) {}
+      )
     }
     
     if (return_mcmc) 
@@ -131,8 +141,8 @@
   ## optimization settings ##
   optim_fn 	    <- match.fun(fnLik)
   optim_Method 	<- "L-BFGS-B"
-  optim_lower 	<- c(-1e+6, 1e-6, -1e+6, 1e-6)
-  optim_upper 	<- c(1e+6, 1e+6, 1e+6, 1e+6)
+  optim_lower 	<- c(-1e+2, 1e-6, -1e+2, 1e-6)
+  optim_upper 	<- c(1e+2, 1e+6, 1e+2, 1e+6)
   optim_fnscale <- fnscale 
   optim_maxit 	<- 200
   optim_ctrl	  <- list(fnscale=optim_fnscale, maxit=optim_maxit, trace=trace)
@@ -142,7 +152,9 @@
                      lower=optim_lower, upper=optim_upper, 
                      control=optim_ctrl, hessian=TRUE)
   
-  if (optim_res$convergence > 0 && grad_free)
+  conv_msg  <- "CONVERGENCE: REL_REDUCTION_OF_F <= FACTR*EPSMCH" 
+  
+  if ((optim_res$convergence > 0 || conv_msg != optim_res$message) && grad_free)
   {
     dfoptim_ctrl  <- list(maximize=TRUE)
     # Bounded Nelder-Mead needs lower absolute bounds for the 
@@ -174,7 +186,7 @@
   optim_fn 	    <- computeCompLik
   optim_Method 	<- "L-BFGS-B"
   optim_lower 	<- c(-1e+6, 1e-6, 1e-6)
-  optim_upper 	<- c(1e+6, 1e+6, 1e+6)
+  optim_upper 	<- c(1e+2, 1e+6, 1e+6)
   optim_fnscale <- fnscale 
   optim_maxit 	<- 200
   optim_ctrl	  <- list(fnscale=optim_fnscale, maxit=optim_maxit, trace=trace)
@@ -183,7 +195,10 @@
                      methodLik=methodLik, method=optim_Method, 
                      lower=optim_lower, upper=optim_upper, 
                      control=optim_ctrl, hessian=TRUE)
-  if (optim_res$convergence > 0 && grad_free)
+  
+  conv_msg  <- "CONVERGENCE: REL_REDUCTION_OF_F <= FACTR*EPSMCH"
+  
+  if ((optim_res$convergence > 0 || conv_msg != optim_res$message) && grad_free)
   {
     dfoptim_ctrl  <- list(maximize=TRUE)
     dfoptim_lower <- c(-1e+1, 1e-6, 1e-6)
