@@ -7,6 +7,6 @@ Author: Who wrote it
 Maintainer: Who to complain to <yourfault@somewhere.net>
 Description: More about what it does (maybe more than one line)
 License: What license is it under?
-Depends: finmix
+Depends: finmix, dfoptim
 Imports: Rcpp (>= 1.0.6), finmix
 LinkingTo: Rcpp, RcppArmadillo
