@@ -6,6 +6,11 @@
 
 using namespace Rcpp;
 
+#ifdef RCPP_USE_GLOBAL_ROSTREAM
+Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
+Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
+#endif
+
 // simulateEKOP_cc
 arma::imat simulateEKOP_cc(const unsigned int nobs, const double alpha, const double epsilon, const double delta, const double mu, const double T);
 RcppExport SEXP _bayespin_simulateEKOP_cc(SEXP nobsSEXP, SEXP alphaSEXP, SEXP epsilonSEXP, SEXP deltaSEXP, SEXP muSEXP, SEXP TSEXP) {
