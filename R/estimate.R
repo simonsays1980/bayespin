@@ -97,13 +97,13 @@
   mu_ieavg <- ordered_ieavg$x[1] / 390 - 2 * epsilon_ieavg
   
   ## Get the weight for the first component. 
-  alpha_map <- pin_estimates@map$weight[ordered_map$ix[1]]
-  alpha_bml <- pin_estimates@bml$weight[ordered_bml$ix[1]]
+  alpha_map   <- pin_estimates@map$weight[ordered_map$ix[1]]
+  alpha_bml   <- pin_estimates@bml$weight[ordered_bml$ix[1]]
   alpha_ieavg <- pin_estimates@ieavg$weight[ordered_ieavg$ix[1]]
   
   ## Calculate the PIN
-  pin_map <- compute_pin(alpha_map, epsilon_map, mu_bml)
-  pin_bml <- compute_pin(alpha_bml, epsilon_bml, mu_bml)
+  pin_map   <- compute_pin(alpha_map, epsilon_map, mu_map)
+  pin_bml   <- compute_pin(alpha_bml, epsilon_bml, mu_bml)
   pin_ieavg <- compute_pin(alpha_ieavg, epsilon_ieavg, mu_ieavg)
 
   col_names <- c('alpha_map', 'epsilon_map', 'mu_map', 'pin_map', 
