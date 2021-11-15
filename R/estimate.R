@@ -9,21 +9,25 @@
     pin_model <- finmix::model(dist='poisson', K=2, r=1)
     
     # Define the prior distribution as a conditional conjugate
-    # prior (a Gamma distribtion) with a hierarchical prior 
+    # prior (a Gamma distribution) with a hierarchical prior 
     # (also Gamma).
     pin_prior <- finmix::priordefine(fdata=pin_fdata, model=pin_model)
     
     # Set up the MCMC algorithm (a Gibbs sampler) with 10,000 iterations
     # and a burnin of 1,000. Allow random permutations of labels and do 
     # not store the indicators `S`.
-    pin_mcmc <- finmix::mcmc(burnin=1000, M=10000, ranperm=TRUE, storeS=FALSE, storepost=FALSE)
+    pin_mcmc <- finmix::mcmc(burnin=1000, M=10000, ranperm=TRUE, 
+                             storeS=FALSE, storepost=FALSE)
     if (with_stephens) pin_mcmc@storepost <- TRUE
     
     # Generate starting parameters for the indicators `S`.
-    (pin_fdata~pin_model~pin_mcmc) %=% finmix::mcmcstart(fdata=pin_fdata, model=pin_model, pin_mcmc)
+    (pin_fdata~pin_model~pin_mcmc) %=% finmix::mcmcstart(fdata=pin_fdata, 
+                                                         model=pin_model, 
+                                                         pin_mcmc)
     
     # Start the MCMC sampling.
-    pin_results <- finmix::mixturemcmc(fdata=pin_fdata, model=pin_model, prior=pin_prior, mcmc=pin_mcmc)
+    pin_results <- finmix::mixturemcmc(fdata=pin_fdata, model=pin_model, 
+                                       prior=pin_prior, mcmc=pin_mcmc)
     
     # Estimate the parameters. 
     pin_parestimates <- finmix::mcmcestimate(pin_results, opt_ctrl=opt_ctrl)
@@ -78,7 +82,7 @@
 
 "compute_bayespin" <- function(pin_estimates, params=TRUE)
 {
-  # Calculate PIN from IEAVG
+  # Calculate PIN
   ## Get the order of the Poisson parameters as the larger one
   ## will be (mu + epsilon). 
   ordered_map <- sort.int(pin_estimates@map$par$lambda, index.return=TRUE, decreasing=TRUE)

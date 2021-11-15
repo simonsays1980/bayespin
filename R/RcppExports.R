@@ -2,10 +2,10 @@
 # Generator token: 10BE3573-1514-4C36-9D1C-5A225CD40393
 
 simulateEKOP_cc <- function(nobs, alpha, epsilon, delta, mu, T) {
-    .Call(`_bayespin_simulateEKOP_cc`, nobs, alpha, epsilon, delta, mu, T)
+    .Call('_bayespin_simulateEKOP_cc', PACKAGE = 'bayespin', nobs, alpha, epsilon, delta, mu, T)
 }
 
 simulateEKOPMis_cc <- function(nobs, alpha, epsilon, delta, mu, mis, T) {
-    .Call(`_bayespin_simulateEKOPMis_cc`, nobs, alpha, epsilon, delta, mu, mis, T)
+    .Call('_bayespin_simulateEKOPMis_cc', PACKAGE = 'bayespin', nobs, alpha, epsilon, delta, mu, mis, T)
 }
 

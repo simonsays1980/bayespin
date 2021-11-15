@@ -7,6 +7,10 @@ Author: Who wrote it
 Maintainer: Who to complain to <yourfault@somewhere.net>
 Description: More about what it does (maybe more than one line)
 License: What license is it under?
+SystemRequirements: C++11
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
 Depends: finmix, dfoptim
 Imports: Rcpp (>= 1.0.6), finmix
 LinkingTo: Rcpp, RcppArmadillo
+RoxygenNote: 7.1.1
