@@ -158,11 +158,12 @@
 #' Calculates estimates of the probability of informed trading
 #' 
 #' @description 
-#' Calling [compute_bayespin()] calculates the probability of informed trading 
-#' (PIN) from the paper of Easley et al. (1996). The input argument is an 
-#' `mcmcest` object from the `finmix` package containing all parameters 
-#' estimates from the finite mixture distribution of the compressed EKOP 
-#' model in Grammig, Theissen and Zehnder (2015). 
+#' Calling [compute_bayespin()] calculates the probability of informed trading
+#' (PIN) from the paper of Easley et al. (1996). The input argument is an
+#' `mcmcest` (see \code{\link[finmix]{mcmcest-class}}) object from the `finmix`
+#' package containing all parameters estimates from the finite mixture
+#' distribution of the compressed EKOP model in Grammig, Theissen and Zehnder
+#' (2015).
 #' 
 #' @param pin_estimates An `mcmcest` object of the `finmix` package containing 
 #'   all estimated parameters from the finite mixture distribution of the 

@@ -14,3 +14,4 @@ Depends: finmix, dfoptim
 Imports: Rcpp (>= 1.0.6), finmix
 LinkingTo: Rcpp, RcppArmadillo
 RoxygenNote: 7.1.1
+Remotes: simonsays1980/finmix
