@@ -1,12 +1,19 @@
 Package: bayespin
 Type: Package
-Title: What the package does (short line)
+Title: An R package for Bayesian estimation of the probability of informed 
+  trading
 Version: 1.0
 Date: 2021-08-04
-Author: Who wrote it
-Maintainer: Who to complain to <yourfault@somewhere.net>
-Description: More about what it does (maybe more than one line)
-License: What license is it under?
+Author: Lars Simon Zehnder
+Maintainer: Lars Simon Zehnder <simon.zehnder@neway.ai>
+Description: An R package for Bayesian estimation of the probability of informed 
+  trading from a finite mixture distribution. The original model by Easley et 
+  al. (1996) can be converted into a compressed model that is a finite mixture 
+  distribution as has been shown by Grammig et al. (1996). This package 
+  implements the Bayesian estimation of the compressed model together with the 
+  traditional approaches using maximum likelihood. The package uses C++ code 
+  and performs a single estimation in around 4-5 seconds. 
+License: GPL (>= 3)
 SystemRequirements: C++11
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)

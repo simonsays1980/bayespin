@@ -3,6 +3,7 @@
 export(compute_bayespin)
 export(compute_pin)
 export(correct_trades)
+export(estimate_mlekop)
 export(simulateEKOP)
 export(simulateEKOPMis)
 importFrom(Rcpp,sourceCpp)

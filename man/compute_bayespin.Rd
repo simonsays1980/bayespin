@@ -20,9 +20,10 @@ EKOP model.
 \description{
 Calling \code{\link[=compute_bayespin]{compute_bayespin()}} calculates the probability of informed trading
 (PIN) from the paper of Easley et al. (1996). The input argument is an
-\code{mcmcest} object from the \code{finmix} package containing all parameters
-estimates from the finite mixture distribution of the compressed EKOP
-model in Grammig, Theissen and Zehnder (2015).
+\code{mcmcest} (see \code{\link[finmix]{mcmcest-class}}) object from the \code{finmix}
+package containing all parameters estimates from the finite mixture
+distribution of the compressed EKOP model in Grammig, Theissen and Zehnder
+(2015).
 }
 \references{
 \itemize{

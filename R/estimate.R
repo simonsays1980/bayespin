@@ -261,10 +261,84 @@
   return(pin)
 }
 
-"estimate_mlekop" <- function(data, startpar, T = 390, methodLik = c("precise", "approx"),
+#' Estimates the probability of informed trading with maximum likelihood
+#' 
+#' @description 
+#' Calling [estimate_mlekop()] estimates the parameters from the model of Easley
+#' et al. (1996, EKOP) together with the probability of informed trading (PIN).
+#' As described in the EKOP model trade data for buy and sell trades are needed,
+#' respectively. Note that in contrast the compressed EKOP model needs only data
+#' for the number of trades per day (see the function references below).
+#' 
+#' @details 
+#' There exist different likelihood variants that can be used in maximum 
+#' likelihood estimation of the EKOP model.
+#' * `computeEKOPOrigLik` uses the likelihood function proposed in the original 
+#'   paper of Easley et al. (1996).
+#' * `computeEKOPLik` uses a likelihood that is modified in regard to deal 
+#'   better with computational overflow. This likelihood function had been 
+#'   presented in slightly modified version by Easley et al. (2002).
+#' Furthermore, to deal with undefined function values like `NaN` or `inf` an
+#' approximation method can be chosen by the argument `methodLik`. Choosing
+#' `"approx"` then approximates values of `NaN`, `-inf` or `inf` by values
+#' `1e+6`, `-1e+6`, and `1e+6`, respectively and basically ignores the
+#' occurrence of undefined values.
+#' 
+#' @param data A `data.frame` containing the number of buyer- and 
+#'   seller-initiated trades. The data must be ordered in columns beginning 
+#'   with the number of mis-specified buys, mis_specified sells, number of 
+#'   buys, number of sells, and the sum of trades per day. See for an example 
+#'   [simulateEKOP()].
+#' @param startpar A vector containing start parameters for maximum likelihood 
+#'   estimation. These must be starting values for the logit of alpha, epsilon,
+#'   the logit of delta, and mu. If no starting values are provided the function 
+#'   chooses the values (0, mean(trades)x.75/2, 0, mean(trades)x.25/2). 
+#' @param T A double specifying the minutes of a trading day.
+#' @param methodLik A character specifying, if undefined function values in 
+#'   optimization should be approximated by large defined values (`1e+6`).
+#'   This can help to make maximum likelihood estimation more stable. 
+#' @param fnLik A character specifying which likelihood function to use. Either
+#'   the original function by Easley et al. (1996) or the slightly modified 
+#'   variant of Easley et al. (2002) can be used. The latter one is known to 
+#'   also work better with large trading volumes. 
+#' @param fnscale A double specifying a scaling factor for the likelihood 
+#'   function,. This can in some cases help when the algorithm does not reach 
+#'   convergence. 
+#' @param trace An integer specifying which level of tracing should be used. 
+#'   see `?optim` for more details. 
+#' @param grad_free A logical indicating if gradient-free optimization should 
+#'   be used when gradient descent does not converge. If `TRUE` the optimization 
+#'   procedure \code{\link[dfoptim]{nmkb}} is used. 
+#' @export
+#' 
+#' @examples 
+#' # Simulate data from the EKOP model. 
+#' trades_data <- simulateEKOP()
+#' # Estimate the EKOP model by maximum likelihood.
+#' pin_estml <- estimate_mlekop(trades_data, methodLik="approx", 
+#'                              fnLik="computeEKOPOrigLik")
+#'                    
+#' @seealso
+#' * [estimate_bayespin()] for estimating the PIN with a Bayesian approach that 
+#'   needs only the total number of trades
+#' * [estimate_compml()] for estimating the PIN with the compressed EKOP model 
+#'   that needs only the total number of trades
+#' * [computeEKOPLik()] for the implementation of the likelihood function of 
+#'   the paper of Easley et al. (2002)
+#' * [computeEKOPOrigLik()] for the implementation of the likelihood function 
+#'   of the paper of Easley et al. (1996)
+#'   
+#' @references 
+#' * Easley, D., Kiefer, N., O’Hara, M., Paperman, J., 1996. Liquidity, 
+#'   information, and infrequently traded stocks. Journal of Finance 51, 
+#'   1405–1436.
+#' * Easley, David, Hvidkjaer, Soeren, and O’Hara, Maureen (2002). 
+#'   “Is Information Risk a Determinant of Asset Returns?” In: The Journal of 
+#'   Finance 57.5, pp. 2185–2221. DOI: 10.1111/1540-6261.00493.
+"estimate_mlekop" <- function(data, startpar, T = 390, 
+                              methodLik = c("precise", "approx"),
                               fnLik = c("computeEKOPLik", "computeEKOPOrigLik"), 
-                              sim = FALSE, mis = FALSE, mis.prob, misInd, fnscale=-1,
-                              trace=0, grad_free=TRUE) 
+                              fnscale=-1, trace=0, grad_free=TRUE) 
 {
   fnLik <- match.arg(fnLik)
   if (missing(startpar)) {
