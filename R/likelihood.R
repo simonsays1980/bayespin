@@ -96,9 +96,11 @@
                            + apply(data[, 3:4], 1, max)/2)
   
   ## Compute Likelihood ##
-  ter1    <- (-2) * (lepsilon * T) + M * log(x) + trades * log((lmu + lepsilon) * T)
+  ter1    <- (-2) * (lepsilon * T) + M * log(x) + 
+    trades * log((lmu + lepsilon) * T)
   ter2    <- lalpha * (1 - ldelta) * exp((-1) * lmu * T) * x^(sells - M)
-  ter2    <- ter2 + lalpha * ldelta * exp((-1) * lmu * T) * x^(buys - M) + (1 - lalpha) * x^(trades - M)
+  ter2    <- ter2 + lalpha * ldelta * exp((-1) * lmu * T) * x^(buys - M) + 
+    (1 - lalpha) * x^(trades - M)
   
   likl    <- sum(ter1, na.rm = TRUE) + sum(log(ter2), na.rm = TRUE)
     
