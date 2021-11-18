@@ -1,10 +1,10 @@
-"computeCompLik" <- function(data, par, T, methodLik = c("precise", "approx")) {
+"compute_comp_lik" <- function(data, par, T, methodLik = c("precise", "approx")) {
   
   ## Check if correct argument is given ##
   method <- match.arg(methodLik)
   
   ## Transform parameters ##
-  lalpha 		<- exp(par[1])/(1 + exp(par[1]))
+  lalpha 		<- logistic(par[1])
   lepsilon 	<- par[2]
   lmu 		  <- par[3]
   
@@ -33,14 +33,14 @@
   return(likl)
 }
 
-"computeEKOPOrigLik" <- function(data, par, T, methodLik = c("precise", "approx"))
+"compute_ekop_orig_lik" <- function(data, par, T, methodLik = c("precise", "approx"))
 {
   ## Check if correct argument is given ##
   method <- match.arg(methodLik)
   
   ## Transform parameters ##
-  lalpha      <- exp(par[1])/(1 + exp(par[1]))
-  ldelta      <- exp(par[3])/(1 + exp(par[3]))
+  lalpha      <- logistic(par[1]) 
+  ldelta      <- logistic(par[3])
   lepsilon    <- par[2]
   lmu         <- par[4]
   
@@ -77,14 +77,51 @@
   return(likl)
 }
 
-"computeEKOPLik" <- function(data, par, T, methodLik = c("precise", "approx"))
+#' Computes the modified likelihood function from the EKOP model
+#' 
+#' @description
+#' Calling [compute_ekop_lik()] computes the modified likelihood function from 
+#' the model of Easley et al. (1996). The modifications are presented in the 
+#' paper by Easley et al. (2002) and are applied to the scenario of equal 
+#' buy and sell rates in the model. 
+#' 
+#' Optimization is performed over the logit transformation of the ratios `alpha`
+#' and `delta` and therefore these parameter logits get transformed in the 
+#' likelihood function via the logistic transformation `exp()/(1+exp())`.  
+#' 
+#' @param data A `data.frame` containing the trades data in the following order:
+#'   mis-specified buys, mis-specified sells, buyer-initiated trades, 
+#'   seller-initiated trades and finally the total number of trades on a 
+#'   specific trading day.
+#' @param par A vector specifying the parameter values at which the function 
+#'   should be evaluated. The parameter order is `alpha`, `epsilon`, `delta`, 
+#'   and `mu`.
+#' @param T A double indicating the length of a trading day in minutes. 
+#' @param A character specifying, if undefined function values in optimization
+#'   should be approximated by large defined values (`1e+6`). This can help to
+#'   make maximum likelihood estimation more stable.
+#' @return A double holding the likelihood value of the data and parameter 
+#'   values passed in.
+#' @export
+#' 
+#' @seealso 
+#' * [estimate_mlekop()] for the calling function.
+#' 
+#' @references
+#' * Easley, D., Kiefer, N., O’Hara, M., Paperman, J., 1996. Liquidity, 
+#'   information, and infrequently traded stocks. Journal of Finance 51, 
+#'   1405–1436.
+#' * Easley, David, Hvidkjaer, Soeren, and O’Hara, Maureen (2002). 
+#'   “Is Information Risk a Determinant of Asset Returns?” In: The Journal of 
+#'   Finance 57.5, pp. 2185–2221. DOI: 10.1111/1540-6261.00493.
+"compute_ekop_lik" <- function(data, par, T, methodLik = c("precise", "approx"))
 {
   ## Check if correct argument is given ##
   method <- match.arg(methodLik)
   
   ## Transform parameters ##
-  lalpha      <- exp(par[1])/(1 + exp(par[1]))
-  ldelta      <- exp(par[3])/(1 + exp(par[3]))
+  lalpha      <- logistic(par[1]) 
+  ldelta      <- logistic(par[3])
   lepsilon    <- par[2]
   lmu         <- par[4]
   x           <- lepsilon/(lepsilon + lmu)
@@ -111,4 +148,26 @@
   }
 
   return(likl)
+}
+
+#' Transforms values by the logistic function
+#' 
+#' @description
+#' Calling [logistic()] applies the logistic transformation `exp()/(1+exp())` 
+#' to the passed in arguments. 
+#' 
+#' @param value A double or a vector of doubles to be transformed. 
+#' @return A double or vector of doubles containing the logistic 
+#'   transformations of the passed in arguments.
+#' @export
+#' 
+#' @examples
+#' logistic(-1.5)
+#' 
+#' @seealso 
+#' * [computeEKOPLik()] for a function applying the transformation during 
+#'   optimization of parameters.
+"logistic" <- function(value)
+{
+  return(exp(value)/(1 + exp(value)))
 }

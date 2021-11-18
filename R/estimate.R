@@ -271,11 +271,12 @@
 #' for the number of trades per day (see the function references below).
 #' 
 #' @details 
+#' ## Maximum Likelihood functions
 #' There exist different likelihood variants that can be used in maximum 
 #' likelihood estimation of the EKOP model.
-#' * `computeEKOPOrigLik` uses the likelihood function proposed in the original 
+#' * `compute_ekop_orig_lik` uses the likelihood function proposed in the original 
 #'   paper of Easley et al. (1996).
-#' * `computeEKOPLik` uses a likelihood that is modified in regard to deal 
+#' * `compute_ekop_lik` uses a likelihood that is modified in regard to deal 
 #'   better with computational overflow. This likelihood function had been 
 #'   presented in slightly modified version by Easley et al. (2002).
 #' Furthermore, to deal with undefined function values like `NaN` or `inf` an
@@ -284,10 +285,28 @@
 #' `1e+6`, `-1e+6`, and `1e+6`, respectively and basically ignores the
 #' occurrence of undefined values.
 #' 
-#' @param data A `data.frame` containing the number of buyer- and 
-#'   seller-initiated trades. The data must be ordered in columns beginning 
-#'   with the number of mis-specified buys, mis_specified sells, number of 
-#'   buys, number of sells, and the sum of trades per day. See for an example 
+#' ## Optimization algorithms 
+#' Optimization is performed gradient-based by using
+#' the \code{\link[stats]{optim}} function. The algorithm used is the `L-BFGS-B`
+#' that allows for parameter restrictions. This is necessary because we use for
+#' the probabilities `alpha` and `delta` the logistic transformation
+#' `exp()/(1+exp())` to produce valid probabilities in optimization.
+#' 
+#' In case that the gradient-based algorithm does not converge in between 100
+#' steps, a gradient-free optimization is applied. For gradient-free
+#' optimization \code{\link[dfoptim]{nmkb}}, a bounded `Nelder-Mead` algorithm
+#' is used. Derivative-free optimization is only performed after gradient-based
+#' optimization did not converge and the argument `grad_free` is `TRUE`.
+#' 
+#' The argument `fnscale` can be used to scale the likelihood function in case 
+#' of very large values (e.g. very large volumes) that might lead to number 
+#' overflow during computation. Note, `fnscale` must always be negative as the 
+#' likelihood function should be maximized.  
+#' 
+#' @param data A `data.frame` containing the number of buyer- and
+#'   seller-initiated trades. The data must be ordered in columns beginning with
+#'   the number of mis-specified buys, mis-specified sells, number of buys,
+#'   number of sells, and finally the sum of trades per day. See for an example
 #'   [simulateEKOP()].
 #' @param startpar A vector containing start parameters for maximum likelihood 
 #'   estimation. These must be starting values for the logit of alpha, epsilon,
@@ -301,14 +320,16 @@
 #'   the original function by Easley et al. (1996) or the slightly modified 
 #'   variant of Easley et al. (2002) can be used. The latter one is known to 
 #'   also work better with large trading volumes. 
-#' @param fnscale A double specifying a scaling factor for the likelihood 
-#'   function,. This can in some cases help when the algorithm does not reach 
-#'   convergence. 
+#' @param fnscale A negatve double specifying a scaling factor for the
+#'   likelihood function. This can in some cases help when the algorithm does
+#'   not reach convergence or suffer from number overflow.
 #' @param trace An integer specifying which level of tracing should be used. 
 #'   see `?optim` for more details. 
 #' @param grad_free A logical indicating if gradient-free optimization should 
-#'   be used when gradient descent does not converge. If `TRUE` the optimization 
+#'   be used when gradient descent did not converge. If `TRUE` the optimization 
 #'   procedure \code{\link[dfoptim]{nmkb}} is used. 
+#' @return A `list` with all components as returned by 
+#'   \code{\link[stats]{optim}} or \code{\link[dfoptim]{nmkb}}.
 #' @export
 #' 
 #' @examples 
@@ -323,9 +344,9 @@
 #'   needs only the total number of trades
 #' * [estimate_compml()] for estimating the PIN with the compressed EKOP model 
 #'   that needs only the total number of trades
-#' * [computeEKOPLik()] for the implementation of the likelihood function of 
+#' * [compute_ekop_lik()] for the implementation of the likelihood function of 
 #'   the paper of Easley et al. (2002)
-#' * [computeEKOPOrigLik()] for the implementation of the likelihood function 
+#' * [compute_ekop_orig_lik()] for the implementation of the likelihood function 
 #'   of the paper of Easley et al. (1996)
 #'   
 #' @references 
@@ -337,7 +358,8 @@
 #'   Finance 57.5, pp. 2185–2221. DOI: 10.1111/1540-6261.00493.
 "estimate_mlekop" <- function(data, startpar, T = 390, 
                               methodLik = c("precise", "approx"),
-                              fnLik = c("computeEKOPLik", "computeEKOPOrigLik"), 
+                              fnLik = c("compute_ekop_lik", 
+                                        "compute_ekop_orig_lik"), 
                               fnscale=-1, trace=0, grad_free=TRUE) 
 {
   fnLik <- match.arg(fnLik)
@@ -381,9 +403,9 @@
   return(optim_res)	
 }
 
-"estimate_compml" <- function(data, startpar, T = 390, methodLik = c("precise", "approx"),
-                              sim = FALSE, mis = FALSE, mis.prob, misInd, fnscale=-1,
-                              trace=0, grad_free=TRUE) 
+"estimate_compml" <- function(data, startpar, T = 390, 
+                              methodLik = c("precise", "approx"),
+                              fnscale=-1, trace=0, grad_free=TRUE) 
 {
   if (missing(startpar)) {
     if (trace > 0)
@@ -395,7 +417,7 @@
   }
   
   ## optimization settings ##
-  optim_fn 	    <- computeCompLik
+  optim_fn 	    <- compute_comp_lik
   optim_Method 	<- "L-BFGS-B"
   optim_lower 	<- c(-1e+6, 1e-6, 1e-6)
   optim_upper 	<- c(1e+2, 1e+6, 1e+6)

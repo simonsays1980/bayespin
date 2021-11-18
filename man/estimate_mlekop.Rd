@@ -9,7 +9,7 @@ estimate_mlekop(
   startpar,
   T = 390,
   methodLik = c("precise", "approx"),
-  fnLik = c("computeEKOPLik", "computeEKOPOrigLik"),
+  fnLik = c("compute_ekop_lik", "compute_ekop_orig_lik"),
   fnscale = -1,
   trace = 0,
   grad_free = TRUE
@@ -17,9 +17,9 @@ estimate_mlekop(
 }
 \arguments{
 \item{data}{A \code{data.frame} containing the number of buyer- and
-seller-initiated trades. The data must be ordered in columns beginning
-with the number of mis-specified buys, mis_specified sells, number of
-buys, number of sells, and the sum of trades per day. See for an example
+seller-initiated trades. The data must be ordered in columns beginning with
+the number of mis-specified buys, mis-specified sells, number of buys,
+number of sells, and finally the sum of trades per day. See for an example
 \code{\link[=simulateEKOP]{simulateEKOP()}}.}
 
 \item{startpar}{A vector containing start parameters for maximum likelihood
@@ -38,16 +38,20 @@ the original function by Easley et al. (1996) or the slightly modified
 variant of Easley et al. (2002) can be used. The latter one is known to
 also work better with large trading volumes.}
 
-\item{fnscale}{A double specifying a scaling factor for the likelihood
-function,. This can in some cases help when the algorithm does not reach
-convergence.}
+\item{fnscale}{A negatve double specifying a scaling factor for the
+likelihood function. This can in some cases help when the algorithm does
+not reach convergence or suffer from number overflow.}
 
 \item{trace}{An integer specifying which level of tracing should be used.
 see \code{?optim} for more details.}
 
 \item{grad_free}{A logical indicating if gradient-free optimization should
-be used when gradient descent does not converge. If \code{TRUE} the optimization
+be used when gradient descent did not converge. If \code{TRUE} the optimization
 procedure \code{\link[dfoptim]{nmkb}} is used.}
+}
+\value{
+A \code{list} with all components as returned by
+\code{\link[stats]{optim}} or \code{\link[dfoptim]{nmkb}}.
 }
 \description{
 Calling \code{\link[=estimate_mlekop]{estimate_mlekop()}} estimates the parameters from the model of Easley
@@ -57,12 +61,14 @@ respectively. Note that in contrast the compressed EKOP model needs only data
 for the number of trades per day (see the function references below).
 }
 \details{
+\subsection{Maximum Likelihood functions}{
+
 There exist different likelihood variants that can be used in maximum
 likelihood estimation of the EKOP model.
 \itemize{
-\item \code{computeEKOPOrigLik} uses the likelihood function proposed in the original
+\item \code{compute_ekop_orig_lik} uses the likelihood function proposed in the original
 paper of Easley et al. (1996).
-\item \code{computeEKOPLik} uses a likelihood that is modified in regard to deal
+\item \code{compute_ekop_lik} uses a likelihood that is modified in regard to deal
 better with computational overflow. This likelihood function had been
 presented in slightly modified version by Easley et al. (2002).
 Furthermore, to deal with undefined function values like \code{NaN} or \code{inf} an
@@ -70,6 +76,27 @@ approximation method can be chosen by the argument \code{methodLik}. Choosing
 \code{"approx"} then approximates values of \code{NaN}, \code{-inf} or \code{inf} by values
 \code{1e+6}, \code{-1e+6}, and \code{1e+6}, respectively and basically ignores the
 occurrence of undefined values.
+}
+}
+
+\subsection{Optimization algorithms}{
+
+Optimization is performed gradient-based by using
+the \code{\link[stats]{optim}} function. The algorithm used is the \code{L-BFGS-B}
+that allows for parameter restrictions. This is necessary because we use for
+the probabilities \code{alpha} and \code{delta} the logistic transformation
+\code{exp()/(1+exp())} to produce valid probabilities in optimization.
+
+In case that the gradient-based algorithm does not converge in between 100
+steps, a gradient-free optimization is applied. For gradient-free
+optimization \code{\link[dfoptim]{nmkb}}, a bounded \code{Nelder-Mead} algorithm
+is used. Derivative-free optimization is only performed after gradient-based
+optimization did not converge and the argument \code{grad_free} is \code{TRUE}.
+
+The argument \code{fnscale} can be used to scale the likelihood function in case
+of very large values (e.g. very large volumes) that might lead to number
+overflow during computation. Note, \code{fnscale} must always be negative as the
+likelihood function should be maximized.
 }
 }
 \examples{
@@ -96,9 +123,9 @@ Finance 57.5, pp. 2185–2221. DOI: 10.1111/1540-6261.00493.
 needs only the total number of trades
 \item \code{\link[=estimate_compml]{estimate_compml()}} for estimating the PIN with the compressed EKOP model
 that needs only the total number of trades
-\item \code{\link[=computeEKOPLik]{computeEKOPLik()}} for the implementation of the likelihood function of
+\item \code{\link[=compute_ekop_lik]{compute_ekop_lik()}} for the implementation of the likelihood function of
 the paper of Easley et al. (2002)
-\item \code{\link[=computeEKOPOrigLik]{computeEKOPOrigLik()}} for the implementation of the likelihood function
+\item \code{\link[=compute_ekop_orig_lik]{compute_ekop_orig_lik()}} for the implementation of the likelihood function
 of the paper of Easley et al. (1996)
 }
 }
