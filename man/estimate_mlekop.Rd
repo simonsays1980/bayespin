@@ -12,7 +12,9 @@ estimate_mlekop(
   fnLik = c("compute_ekop_lik", "compute_ekop_orig_lik"),
   fnscale = -1,
   trace = 0,
-  grad_free = TRUE
+  grad_free = TRUE,
+  return_opt = FALSE,
+  opt_out = TRUE
 )
 }
 \arguments{
@@ -48,6 +50,17 @@ see \code{?optim} for more details.}
 \item{grad_free}{A logical indicating if gradient-free optimization should
 be used when gradient descent did not converge. If \code{TRUE} the optimization
 procedure \code{\link[dfoptim]{nmkb}} is used.}
+
+\item{return_opt}{A logical indicating, if in addition to the PIN estimates
+also the results from the optimization procedure should be returned. If
+\code{TRUE} a list is returned with an element \code{pin_estimates} holding the
+PIN estimates and an element \code{opt_results} holding the output of the
+optimization procedure.}
+
+\item{opt_out}{(Deprecated) A logical indicating if only the output of the
+optimization procedure should be returned. Some older applications still
+rely on this output. In the next version this feature will be removed.
+Note that the default value is \code{TRUE}.}
 }
 \value{
 A \code{list} with all components as returned by
@@ -104,7 +117,7 @@ likelihood function should be maximized.
 trades_data <- simulateEKOP()
 # Estimate the EKOP model by maximum likelihood.
 pin_estml <- estimate_mlekop(trades_data, methodLik="approx", 
-                             fnLik="computeEKOPOrigLik")
+                             fnLik="computeEKOPOrigLik", opt_out=FALSE)
                    
 }
 \references{
@@ -119,7 +132,7 @@ Finance 57.5, pp. 2185–2221. DOI: 10.1111/1540-6261.00493.
 }
 \seealso{
 \itemize{
-\item \code{\link[=estimate_bayespin]{estimate_bayespin()}} for estimating the PIN with a Bayesian approach that
+\item \code{\link[=estimate_pin]{estimate_pin()}} for estimating the PIN with a Bayesian approach that
 needs only the total number of trades
 \item \code{\link[=estimate_compml]{estimate_compml()}} for estimating the PIN with the compressed EKOP model
 that needs only the total number of trades

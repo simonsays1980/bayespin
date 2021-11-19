@@ -165,7 +165,7 @@
 #' logistic(-1.5)
 #' 
 #' @seealso 
-#' * [computeEKOPLik()] for a function applying the transformation during 
+#' * [compute_ekop_lik()] for a function applying the transformation during 
 #'   optimization of parameters.
 "logistic" <- function(value)
 {

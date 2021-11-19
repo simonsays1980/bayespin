@@ -23,7 +23,7 @@ logistic(-1.5)
 }
 \seealso{
 \itemize{
-\item \code{\link[=computeEKOPLik]{computeEKOPLik()}} for a function applying the transformation during
+\item \code{\link[=compute_ekop_lik]{compute_ekop_lik()}} for a function applying the transformation during
 optimization of parameters.
 }
 }

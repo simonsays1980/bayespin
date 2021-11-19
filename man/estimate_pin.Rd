@@ -67,6 +67,13 @@ samples for further inspection. Setting \code{return_mcmc} to \code{TRUE} (defau
 returns also the MCMC traces.
 }
 }
+\examples{
+# Simulate trades data
+trades_data <- simulateEKOP()
+# Estimate the Bayesian PIN.
+estimate_pin(trades_data$Trades)
+
+}
 \references{
 \itemize{
 \item Easley, D., Kiefer, N., O’Hara, M., Paperman, J., 1996. Liquidity,

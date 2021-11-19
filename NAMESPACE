@@ -2,9 +2,11 @@
 
 export(compute_bayespin)
 export(compute_ekop_lik)
+export(compute_mlpin)
 export(compute_pin)
 export(correct_trades)
 export(estimate_mlekop)
+export(estimate_pin)
 export(logistic)
 export(simulateEKOP)
 export(simulateEKOPMis)
