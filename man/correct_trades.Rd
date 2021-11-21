@@ -27,8 +27,8 @@ the well-specified trades data.
 \examples{
 # Simulate mis-specifed trades data for 1000 trading dates with a trading 
 # day lasting 6.5 hours.
-trades_data <- simulateEKOPMis(size = 1000, alpha = .3, epsilon = .4,
-                               delta = .5, mu = .04, T = 60*6.5, mis = .1)
+trades_data <- simulate_ekop_mis(size = 1000, alpha = .3, epsilon = .4,
+                                 delta = .5, mu = .04, T = 60*6.5, mis = .1)
 trades_data_corr <- correct_trades(trades = trades_data)                        
 head(trades_data_corr)
 

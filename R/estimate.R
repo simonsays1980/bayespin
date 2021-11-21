@@ -55,7 +55,7 @@
 #' 
 #' @examples 
 #' # Simulate trades data
-#' trades_data <- simulateEKOP()
+#' trades_data <- simulate_ekop()
 #' # Estimate the Bayesian PIN.
 #' estimate_pin(trades_data$Trades)
 #' 
@@ -258,9 +258,10 @@
 #'
 #' @examples 
 #' # Simulate trades data.
-#' trades_data <- simulateEKOP()
+#' trades_data <- simulate_ekop()
 #' # Estimate the EKOP model.
-#' opt_out <- estimate_mlekop(trades_data, methodLik="approx")
+#' pin_estml <- estimate_mlekop(trades_data, methodLik="approx", 
+#'                              fnLik="compute_ekop_orig_lik")
 #' # Estimate the PIN from the parameter estimates.
 #' compute_mlpin(opt_out$par)
 #' 
@@ -369,7 +370,7 @@
 #'   seller-initiated trades. The data must be ordered in columns beginning with
 #'   the number of mis-specified buys, mis-specified sells, number of buys,
 #'   number of sells, and finally the sum of trades per day. See for an example
-#'   [simulateEKOP()].
+#'   [simulate_ekop()].
 #' @param startpar A vector containing start parameters for maximum likelihood 
 #'   estimation. These must be starting values for the logit of alpha, epsilon,
 #'   the logit of delta, and mu. If no starting values are provided the function 
@@ -407,10 +408,10 @@
 #'
 #' @examples 
 #' # Simulate data from the EKOP model. 
-#' trades_data <- simulateEKOP()
+#' trades_data <- simulate_ekop()
 #' # Estimate the EKOP model by maximum likelihood.
 #' pin_estml <- estimate_mlekop(trades_data, methodLik="approx", 
-#'                              fnLik="computeEKOPOrigLik", opt_out=FALSE)
+#'                              fnLik="compute_ekop_orig_lik", opt_out=FALSE)
 #'                    
 #' @seealso
 #' * [estimate_pin()] for estimating the PIN with a Bayesian approach that 
@@ -550,7 +551,7 @@
 #'
 #' @examples 
 #' # Simulate data from the EKOP model. 
-#' trades_data <- simulateEKOP()
+#' trades_data <- simulate_ekop()
 #' # Estimate the EKOP model by maximum likelihood.
 #' pin_estml <- estimate_compml(trades_data$Trades, methodLik="approx", 
 #'                              opt_out=FALSE)

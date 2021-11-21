@@ -69,7 +69,7 @@ returns also the MCMC traces.
 }
 \examples{
 # Simulate trades data
-trades_data <- simulateEKOP()
+trades_data <- simulate_ekop()
 # Estimate the Bayesian PIN.
 estimate_pin(trades_data$Trades)
 

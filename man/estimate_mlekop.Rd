@@ -22,7 +22,7 @@ estimate_mlekop(
 seller-initiated trades. The data must be ordered in columns beginning with
 the number of mis-specified buys, mis-specified sells, number of buys,
 number of sells, and finally the sum of trades per day. See for an example
-\code{\link[=simulateEKOP]{simulateEKOP()}}.}
+\code{\link[=simulate_ekop]{simulate_ekop()}}.}
 
 \item{startpar}{A vector containing start parameters for maximum likelihood
 estimation. These must be starting values for the logit of alpha, epsilon,
@@ -114,10 +114,10 @@ likelihood function should be maximized.
 }
 \examples{
 # Simulate data from the EKOP model. 
-trades_data <- simulateEKOP()
+trades_data <- simulate_ekop()
 # Estimate the EKOP model by maximum likelihood.
 pin_estml <- estimate_mlekop(trades_data, methodLik="approx", 
-                             fnLik="computeEKOPOrigLik", opt_out=FALSE)
+                             fnLik="compute_ekop_orig_lik", opt_out=FALSE)
                    
 }
 \references{

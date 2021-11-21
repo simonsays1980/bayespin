@@ -90,12 +90,12 @@ NULL
 #' @examples
 #' # Simulate trades data for 1000 trading dates with a trading day lasting 
 #' # 6.5 hours.
-#' trades_data <- simulateEKOP(size = 1000, alpha = .3, epsilon = .4,
-#'                             delta = .5, mu = .04, T = 60*6.5)
+#' trades_data <- simulate_ekop(size = 1000, alpha = .3, epsilon = .4,
+#'                              delta = .5, mu = .04, T = 60*6.5)
 #' head(trades_data)
 #' 
 #' @seealso 
-#' * [simulateEKOPMis()] for simulating mis-specified trades data 
+#' * [simulate_ekop_mis()] for simulating mis-specified trades data 
 #' 
 #' @references 
 #' * Easley, D., Kiefer, N., O’Hara, M., Paperman, J., 1996. Liquidity, 
@@ -104,7 +104,7 @@ NULL
 #' * Grammig, J., Theissen, E., Zehnder, L.S., 2015. Bayesian Estimation of the 
 #'   Probability of Informed Trading. Conference on Financial Econometrics & 
 #'   Empirical Asset Pricing 2016, Lancaster University
-"simulateEKOP" <- function(size = 1000, alpha = 0.2, epsilon = 0.2, 
+"simulate_ekop" <- function(size = 1000, alpha = 0.2, epsilon = 0.2, 
                            delta = 0.5, mu = 0.02, T = 60 * 6.5) 
 {
   trade.sample <- simulateEKOP_cc(as.integer(size), as.double(alpha), 
@@ -148,12 +148,12 @@ NULL
 #' @examples
 #' # Simulate mis-specifed trades data for 1000 trading dates with a trading 
 #' # day lasting 6.5 hours.
-#' trades_data <- simulateEKOPMis(size = 1000, alpha = .3, epsilon = .4,
-#'                                delta = .5, mu = .04, T = 60*6.5, mis = .1)
+#' trades_data <- simulate_ekop_mis(size = 1000, alpha = .3, epsilon = .4,
+#'                                  delta = .5, mu = .04, T = 60*6.5, mis = .1)
 #' head(trades_data)
 #' 
 #' @seealso 
-#' * [simulateEKOP()] for simulating trades data without mis-specification
+#' * [simulate_ekop()] for simulating trades data without mis-specification
 #' * [correct_trades()] to reconstruct original trades data from mis-specified
 #'   ones
 #'   
@@ -164,7 +164,7 @@ NULL
 #' * Grammig, J., Theissen, E., Zehnder, L.S., 2015. Bayesian Estimation of the 
 #'   Probability of Informed Trading. Conference on Financial Econometrics & 
 #'   Empirical Asset Pricing 2016, Lancaster University
-"simulateEKOPMis" <- function(size = 1000, alpha = 0.2, epsilon = 0.2, 
+"simulate_ekop_mis" <- function(size = 1000, alpha = 0.2, epsilon = 0.2, 
                               delta = 0.5, mu = 0.02, T = 60 * 6.5, 
                               mis = 0.15) 
 {
@@ -200,8 +200,8 @@ NULL
 #' @examples
 #' # Simulate mis-specifed trades data for 1000 trading dates with a trading 
 #' # day lasting 6.5 hours.
-#' trades_data <- simulateEKOPMis(size = 1000, alpha = .3, epsilon = .4,
-#'                                delta = .5, mu = .04, T = 60*6.5, mis = .1)
+#' trades_data <- simulate_ekop_mis(size = 1000, alpha = .3, epsilon = .4,
+#'                                  delta = .5, mu = .04, T = 60*6.5, mis = .1)
 #' trades_data_corr <- correct_trades(trades = trades_data)                        
 #' head(trades_data_corr)
 #' 
