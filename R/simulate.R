@@ -28,7 +28,7 @@ NULL
 #' 
 #' The package makes use of high-performance C++ algorithms for MCMC sampling 
 #' for finite mixture distributions offered by the 
-#' \code{\href{https://github.com/simonsays1980/finmix}{finmix}} 
+#' \href{https://github.com/simonsays1980/finmix}{`finmix`} 
 #' package. Model estimation with a simple `K-means` relabeling takes around 
 #' 4-6 seconds. 
 #' 

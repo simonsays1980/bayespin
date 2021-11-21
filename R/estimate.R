@@ -51,6 +51,7 @@
 #'   with a `finmix::mcmcoutput` (see \code{\link[finmix]{mcmcoutput-class}}) 
 #'   object containing the MCMC traces of the component paramaters.
 #' @export
+#' @import finmix
 #' 
 #' @examples 
 #' # Simulate trades data
@@ -172,7 +173,7 @@
 #' distribution of the compressed EKOP model in Grammig, Theissen and Zehnder
 #' (2015).
 #' 
-#' @param pin_estimates An `mcmcest` object of the `finmix` package containing 
+#' @param mcmcest An `mcmcest` object of the `finmix` package containing 
 #'   all estimated parameters from the finite mixture distribution of the 
 #'   compressed EKOP model.
 #' @return A `data.frame` with estimated PINs from the maximum a posterior, the 
@@ -180,7 +181,7 @@
 #'   estimates of the underlying finite mixture distribution of the compressed 
 #'   EKOP model.
 #' @export
-#' 
+#'
 #' @seealso 
 #' * \code{\link[finmix]{mcmcest-class}} for the definition of the `mcmcest` class union
 #' * [estimate_pin()] for estimating the PIN with the Bayesian approach 
@@ -254,7 +255,7 @@
 #'   procedure. 
 #' @return A double holding the PIN estimate.
 #' @export
-#' 
+#'
 #' @examples 
 #' # Simulate trades data.
 #' trades_data <- simulateEKOP()
@@ -401,7 +402,9 @@
 #' @return A `list` with all components as returned by 
 #'   \code{\link[stats]{optim}} or \code{\link[dfoptim]{nmkb}}.
 #' @export
-#' 
+#' @importFrom stats optim
+#' @importFrom dfoptim nmkb
+#'
 #' @examples 
 #' # Simulate data from the EKOP model. 
 #' trades_data <- simulateEKOP()
@@ -542,12 +545,14 @@
 #' @return A `list` with all components as returned by 
 #'   \code{\link[stats]{optim}} or \code{\link[dfoptim]{nmkb}}.
 #' @export
-#' 
+#' @importFrom stats optim
+#' @importFrom dfoptim nmkb
+#'
 #' @examples 
 #' # Simulate data from the EKOP model. 
 #' trades_data <- simulateEKOP()
 #' # Estimate the EKOP model by maximum likelihood.
-#' pin_estml <- estimate_mlcomp(trades_data$Trades, methodLik="approx", 
+#' pin_estml <- estimate_compml(trades_data$Trades, methodLik="approx", 
 #'                              opt_out=FALSE)
 #'                    
 #' @seealso

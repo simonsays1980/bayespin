@@ -88,7 +88,7 @@ likelihood function should be maximized.
 # Simulate data from the EKOP model. 
 trades_data <- simulateEKOP()
 # Estimate the EKOP model by maximum likelihood.
-pin_estml <- estimate_mlcomp(trades_data$Trades, methodLik="approx", 
+pin_estml <- estimate_compml(trades_data$Trades, methodLik="approx", 
                              opt_out=FALSE)
                    
 }

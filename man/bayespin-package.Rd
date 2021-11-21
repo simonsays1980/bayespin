@@ -42,7 +42,7 @@ estimates.
 
 The package makes use of high-performance C++ algorithms for MCMC sampling
 for finite mixture distributions offered by the
-\code{\href{https://github.com/simonsays1980/finmix}{finmix}}
+\href{https://github.com/simonsays1980/finmix}{\code{finmix}}
 package. Model estimation with a simple \code{K-means} relabeling takes around
 4-6 seconds.
 \subsection{Implementation of other estimation approaches}{
