@@ -26,10 +26,10 @@ at the original parameter estimates the logistic transformation from
 # Simulate trades data.
 trades_data <- simulate_ekop()
 # Estimate the EKOP model.
-pin_estml <- estimate_mlekop(trades_data, methodLik="approx", 
+pin_optml <- estimate_mlekop(trades_data, methodLik="approx", 
                              fnLik="compute_ekop_orig_lik")
 # Estimate the PIN from the parameter estimates.
-compute_mlpin(opt_out$par)
+compute_mlpin(pin_optml$par)
 
 }
 \references{

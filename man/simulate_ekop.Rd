@@ -44,7 +44,7 @@ The functions returns a \code{data.frame} with named columns \code{MisBuy}, \cod
 trades per trading day and \code{Trades} defines the sum of these amounts.
 \code{MisBuy} and \code{MisSell} are only added to allow for a standardization of
 input data to the estimation functions of the \code{bayespin} package. The
-corresponding simulation function \code{\link[=simulateEKOPMis]{simulateEKOPMis()}} simulates
+corresponding simulation function \code{\link[=simulate_ekop_mis]{simulate_ekop_mis()}} simulates
 mis-specified trades data and returns in the fields \code{MisBuy} and \code{MisSell}
 the number of mis-specified buy and sell trades per trading day respectively.
 }

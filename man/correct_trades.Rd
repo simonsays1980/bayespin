@@ -35,7 +35,7 @@ head(trades_data_corr)
 }
 \seealso{
 \itemize{
-\item \code{\link[=simulateEKOPMis]{simulateEKOPMis()}} for simulating trades data with mis-specification
-\item \code{\link[=simulateEKOP]{simulateEKOP()}} for simulating trades data without mis-specification
+\item \code{\link[=simulate_ekop_mis]{simulate_ekop_mis()}} for simulating trades data with mis-specification
+\item \code{\link[=simulate_ekop]{simulate_ekop()}} for simulating trades data without mis-specification
 }
 }
