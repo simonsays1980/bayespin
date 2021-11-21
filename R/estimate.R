@@ -485,6 +485,85 @@
   }
 }
 
+#' Estimated the probability of informed trading of the compressed EKOP model
+#' 
+#' @description 
+#' Calling [estimate_compml()] estimates the probability of informed trading 
+#' (PIN) from the model of Jackson (2007) using maximum likelihood (ML). As 
+#' described in the paper by Jackson (2007) and similar to the Bayesian 
+#' estimation used in Grammig et al. (2015) this model needs only the number 
+#' of trades per day provided in the parameter `data`.
+#' 
+#' @details
+#' ## Optimization algorithms 
+#' Optimization is performed gradient-based by using the
+#' \code{\link[stats]{optim}} function. The algorithm used is the `L-BFGS-B`
+#' that allows for parameter restrictions. This is necessary because we use for
+#' the probability `alpha` the logistic transformation `exp()/(1+exp())` to
+#' produce valid probabilities in optimization.
+#' 
+#' In case that the gradient-based algorithm does not converge in between 100
+#' steps, a gradient-free optimization is applied. For gradient-free
+#' optimization \code{\link[dfoptim]{nmkb}}, a bounded `Nelder-Mead` algorithm
+#' is used. Derivative-free optimization is only performed after gradient-based
+#' optimization did not converge and the argument `grad_free` is `TRUE`.
+#' 
+#' The argument `fnscale` can be used to scale the likelihood function in case 
+#' of very large values (e.g. very large volumes) that might lead to number 
+#' overflow during computation. Note, `fnscale` must always be negative as the 
+#' likelihood function should be maximized.
+#'
+#' @param data A `vector` containing the number of trades per day.
+#' @param startpar A vector containing start parameters for maximum likelihood
+#'   estimation. These must be starting values for the logit of alpha, epsilon,
+#'   and mu. If no starting values are provided the function chooses the values
+#'   `(0, mean(trades)x.75/2, mean(trades)x.25/2)`.
+#' @param T A double specifying the minutes of a trading day.
+#' @param methodLik A character specifying, if undefined function values in 
+#'   optimization should be approximated by large defined values (`1e+6`).
+#'   This can help to make maximum likelihood estimation more stable. 
+#' @param fnscale A negatve double specifying a scaling factor for the
+#'   likelihood function. This can in some cases help when the algorithm does
+#'   not reach convergence or suffer from number overflow.
+#' @param trace An integer specifying which level of tracing should be used. 
+#'   see `?optim` for more details. 
+#' @param grad_free A logical indicating if gradient-free optimization should 
+#'   be used when gradient descent did not converge. If `TRUE` the optimization 
+#'   procedure \code{\link[dfoptim]{nmkb}} is used. 
+#' @param return_opt A logical indicating, if in addition to the PIN estimates 
+#'   also the results from the optimization procedure should be returned. If 
+#'   `TRUE` a list is returned with an element `pin_estimates` holding the 
+#'   PIN estimates and an element `opt_results` holding the output of the 
+#'   optimization procedure.
+#' @param opt_out (Deprecated) A logical indicating if only the output of the 
+#'   optimization procedure should be returned. Some older applications still 
+#'   rely on this output. In the next version this feature will be removed. 
+#'   Note that the default value is `TRUE`.  
+#' @return A `list` with all components as returned by 
+#'   \code{\link[stats]{optim}} or \code{\link[dfoptim]{nmkb}}.
+#' @export
+#' 
+#' @examples 
+#' # Simulate data from the EKOP model. 
+#' trades_data <- simulateEKOP()
+#' # Estimate the EKOP model by maximum likelihood.
+#' pin_estml <- estimate_mlcomp(trades_data$Trades, methodLik="approx", 
+#'                              opt_out=FALSE)
+#'                    
+#' @seealso
+#' * [estimate_pin()] for estimating the PIN with a Bayesian approach that 
+#'   needs only the total number of trades
+#' * [estimate_mlekop()] for estimating the PIN with the original EKOP model 
+#'   that needs the numbers of buyer- and seller-initiated trades per day
+#' * [compute_comp_lik()] for the implementation of the likelihood function of 
+#'   the paper of Jackson (2007).
+#'   
+#' @references
+#' * Jackson, D., 2007. Infering trader behavior from transaction data: A trade 
+#'   count model. Journal of Computational and Graphical Statistics 12, 55-79.
+#' * Grammig, J., Theissen, E., Zehnder, L.S., 2015. Bayesian Estimation of the 
+#'   Probability of Informed Trading. Conference on Financial Econometrics & 
+#'   Empirical Asset Pricing 2016, Lancaster University
 "estimate_compml" <- function(data, startpar, T = 390, 
                               methodLik = c("precise", "approx"),
                               fnscale=-1, trace=0, grad_free=TRUE,
@@ -537,5 +616,4 @@
   {
     return(pin_estimates)
   }
-
 }
