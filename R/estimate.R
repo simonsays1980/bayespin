@@ -260,10 +260,10 @@
 #' # Simulate trades data.
 #' trades_data <- simulate_ekop()
 #' # Estimate the EKOP model.
-#' pin_estml <- estimate_mlekop(trades_data, methodLik="approx", 
+#' pin_optml <- estimate_mlekop(trades_data, methodLik="approx", 
 #'                              fnLik="compute_ekop_orig_lik")
 #' # Estimate the PIN from the parameter estimates.
-#' compute_mlpin(opt_out$par)
+#' compute_mlpin(pin_optml$par)
 #' 
 #' @seealso
 #' * [estimate_mlekop()] for the calling function.
@@ -573,7 +573,7 @@
 "estimate_compml" <- function(data, startpar, T = 390, 
                               methodLik = c("precise", "approx"),
                               fnscale=-1, trace=0, grad_free=TRUE,
-                              return_opt=FALSE, opt_out = TRUE) 
+                              return_opt=FALSE, opt_out=TRUE) 
 {
   if (missing(startpar)) {
     if (trace > 0)

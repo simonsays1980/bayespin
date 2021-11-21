@@ -72,7 +72,7 @@ NULL
 #' trades per trading day and `Trades` defines the sum of these amounts. 
 #' `MisBuy` and `MisSell` are only added to allow for a standardization of 
 #' input data to the estimation functions of the `bayespin` package. The 
-#' corresponding simulation function [simulateEKOPMis()] simulates 
+#' corresponding simulation function [simulate_ekop_mis()] simulates 
 #' mis-specified trades data and returns in the fields `MisBuy` and `MisSell` 
 #' the number of mis-specified buy and sell trades per trading day respectively.
 #'  
@@ -206,8 +206,8 @@ NULL
 #' head(trades_data_corr)
 #' 
 #' @seealso
-#' * [simulateEKOPMis()] for simulating trades data with mis-specification
-#' * [simulateEKOP()] for simulating trades data without mis-specification 
+#' * [simulate_ekop_mis()] for simulating trades data with mis-specification
+#' * [simulate_ekop()] for simulating trades data without mis-specification 
 "correct_trades" <- function(trades)
 {
   trades$Buy <- trades$Buy - trades$MisBuy + trades$MisSell

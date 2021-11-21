@@ -32,7 +32,8 @@
 #' @references
 #' * Jackson, D., 2007. Infering trader behavior from transaction data: A trade 
 #'   count model. Journal of Computational and Graphical Statistics 12, 55-79.
-"compute_comp_lik" <- function(data, par, T, methodLik = c("precise", "approx")) {
+"compute_comp_lik" <- function(data, par, T, methodLik = c("precise", "approx")) 
+{
   
   ## Check if correct argument is given ##
   method <- match.arg(methodLik)
