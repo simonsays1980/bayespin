@@ -50,7 +50,15 @@
 #'   Otherwise, a `list` containing the `data.frame` of PIN estimates together 
 #'   with a `finmix::mcmcoutput` (see \code{\link[finmix]{mcmcoutput-class}}) 
 #'   object containing the MCMC traces of the component paramaters.
-#'   
+#' @export
+#' @import finmix
+#' 
+#' @examples 
+#' # Simulate trades data
+#' trades_data <- simulate_ekop()
+#' # Estimate the Bayesian PIN.
+#' estimate_pin(trades_data$Trades)
+#' 
 #' @seealso 
 #' * \code{\link[finmix]{mixturemcmc}} for performing MCMC sampling
 #' * \code{\link[finmix]{mcmcestimate}} for estimating parameters from MCMC samples
@@ -72,44 +80,44 @@
 "estimate_pin" <- function(pin_data, return_mcmc=FALSE, with_stephens=FALSE)
   {
     # Create `fdata` object with dimension `r=1`.
-    pin_fdata <- finmix::fdata(matrix(pin_data), type='discrete', r=1)
+    mcmc_fdata <- finmix::fdata(matrix(pin_data), type='discrete', r=1)
     
     # Create a finite mixture model of two Poisson distributions.
-    pin_model <- finmix::model(dist='poisson', K=2, r=1)
+    mcmc_model <- finmix::model(dist='poisson', K=2, r=1)
     
     # Define the prior distribution as a conditional conjugate
     # prior (a Gamma distribution) with a hierarchical prior 
     # (also Gamma).
-    pin_prior <- finmix::priordefine(fdata=pin_fdata, model=pin_model)
+    mcmc_prior <- finmix::priordefine(fdata=mcmc_fdata, model=mcmc_model)
     
     # Set up the MCMC algorithm (a Gibbs sampler) with 10,000 iterations
     # and a burnin of 1,000. Allow random permutation of labels and do 
     # not store the indicators `S`.
-    pin_mcmc <- finmix::mcmc(burnin=1000, M=10000, ranperm=TRUE, 
+    mcmc_mcmc <- finmix::mcmc(burnin=1000, M=10000, ranperm=TRUE, 
                              storeS=FALSE, storepost=FALSE)
-    if (with_stephens) pin_mcmc@storepost <- TRUE
+    if (with_stephens) mcmc_mcmc@storepost <- TRUE
     
     # Generate starting parameters for the indicators `S`.
-    (pin_fdata~pin_model~pin_mcmc) %=% finmix::mcmcstart(fdata=pin_fdata, 
-                                                         model=pin_model, 
-                                                         pin_mcmc)
+    (mcmc_fdata~mcmc_model~mcmc_mcmc) %=% finmix::mcmcstart(fdata=mcmc_fdata, 
+                                                            model=mcmc_model, 
+                                                            mcmc_mcmc)
     
     # Start the MCMC sampling.
-    pin_results <- finmix::mixturemcmc(fdata=pin_fdata, model=pin_model, 
-                                       prior=pin_prior, mcmc=pin_mcmc)
+    mcmc_results <- finmix::mixturemcmc(fdata=mcmc_fdata, model=mcmc_model, 
+                                       prior=mcmc_prior, mcmc=mcmc_mcmc)
     
     # Estimate the parameters. 
-    pin_parest    <- finmix::mcmcestimate(pin_results)
+    mcmc_parest    <- finmix::mcmcestimate(mcmc_results)
     # Calculate the PIN estimates.
-    pin_estimates <- compute_bayespin(pin_parestimates)
+    pin_estimates <- compute_bayespin(mcmc_parest)
     if (with_stephens) 
     {
-      
+      # Relabel with Stephens1997a.
       tryCatch(
         {
-          pin_parest_st1997a <- finmix::mcmcestimate(pin_results, 
-                                                     method='Stephens1997a')
-          pin_est_st1997a    <- compute_bayespin(pin_parest_st1997a)[1,9:12]
+          mcmc_parest_st1997a <- finmix::mcmcestimate(mcmc_results, 
+                                                      method='Stephens1997a')
+          pin_est_st1997a    <- compute_bayespin(mcmc_parest_st1997a)[1,9:12]
           colnames(pin_est_st1997a) <- c('alpha_ieavg_stephens1997a', 
                                          'epsilon_ieavg_stephens1997a',
                                          'mu_ieavg_stephens1997a', 
@@ -123,14 +131,14 @@
         },
         warning=function(warn) {}
       )
-      
+      # Relabel with Stephens1997b.
       tryCatch(
         {
           # Stephens1997b needs the data to draw conclusion about the labels.
-          pin_parest_st1997b <- finmix::mcmcestimate(pin_results, 
-                                                     method='Stephens1997b', 
-                                                     fdata=pin_fdata)
-          pin_est_st1997b    <- compute_bayespin(pin_parest_st1997b)[1,9:12]
+          mcmc_parest_st1997b <- finmix::mcmcestimate(mcmc_results, 
+                                                      method='Stephens1997b', 
+                                                      fdata=mcmc_fdata)
+          pin_est_st1997b    <- compute_bayespin(mcmc_parest_st1997b)[1,9:12]
           colnames(pin_est_st1997b) <- c('alpha_ieavg_stephens1997b', 
                                          'epislon_ieavg_stephens1997b',
                                          'mu_ieavg_stephens1997b', 
@@ -148,7 +156,7 @@
     
     if (return_mcmc) 
     {
-      return(list("pin_estimates"=pin_estimates, "pin_results"=pin_results))
+      return(list("pin_estimates"=pin_estimates, "mcmc_results"=mcmc_results))
     } else 
     {
       return(pin_estimates)
@@ -165,7 +173,7 @@
 #' distribution of the compressed EKOP model in Grammig, Theissen and Zehnder
 #' (2015).
 #' 
-#' @param pin_estimates An `mcmcest` object of the `finmix` package containing 
+#' @param mcmcest An `mcmcest` object of the `finmix` package containing 
 #'   all estimated parameters from the finite mixture distribution of the 
 #'   compressed EKOP model.
 #' @return A `data.frame` with estimated PINs from the maximum a posterior, the 
@@ -173,7 +181,7 @@
 #'   estimates of the underlying finite mixture distribution of the compressed 
 #'   EKOP model.
 #' @export
-#' 
+#'
 #' @seealso 
 #' * \code{\link[finmix]{mcmcest-class}} for the definition of the `mcmcest` class union
 #' * [estimate_pin()] for estimating the PIN with the Bayesian approach 
@@ -187,16 +195,16 @@
 #' * Grammig, J., Theissen, E., Zehnder, L.S., 2015. Bayesian Estimation of the 
 #'   Probability of Informed Trading. Conference on Financial Econometrics & 
 #'   Empirical Asset Pricing 2016, Lancaster University
-"compute_bayespin" <- function(pin_estimates)
+"compute_bayespin" <- function(mcmcest)
 {
   # Calculate PIN
   ## Get the order of the Poisson parameters as the larger one
   ## will be (mu + epsilon). 
-  ordered_map   <- sort.int(pin_estimates@map$par$lambda, index.return=TRUE, 
+  ordered_map   <- sort.int(mcmcest@map$par$lambda, index.return=TRUE, 
                             decreasing=TRUE)
-  ordered_bml   <- sort.int(pin_estimates@bml$par$lambda, index.return=TRUE, 
+  ordered_bml   <- sort.int(mcmcest@bml$par$lambda, index.return=TRUE, 
                             decreasing=TRUE)
-  ordered_ieavg <- sort.int(pin_estimates@ieavg$par$lambda, index.return=TRUE, 
+  ordered_ieavg <- sort.int(mcmcest@ieavg$par$lambda, index.return=TRUE, 
                             decreasing=TRUE)
   
   ## Note that we use T = 390 minutes.
@@ -211,9 +219,9 @@
   mu_ieavg <- ordered_ieavg$x[1] / 390 - 2 * epsilon_ieavg
   
   ## Get the weight for the first component. 
-  alpha_map   <- pin_estimates@map$weight[ordered_map$ix[1]]
-  alpha_bml   <- pin_estimates@bml$weight[ordered_bml$ix[1]]
-  alpha_ieavg <- pin_estimates@ieavg$weight[ordered_ieavg$ix[1]]
+  alpha_map   <- mcmcest@map$weight[ordered_map$ix[1]]
+  alpha_bml   <- mcmcest@bml$weight[ordered_bml$ix[1]]
+  alpha_ieavg <- mcmcest@ieavg$weight[ordered_ieavg$ix[1]]
   
   ## Calculate the PIN
   pin_map   <- compute_pin(alpha_map, epsilon_map, mu_map)
@@ -227,10 +235,65 @@
                           alpha_bml, epsilon_bml, mu_bml, pin_bml,
                           alpha_ieavg, epsilon_ieavg, mu_ieavg, pin_ieavg)
   colnames(estimates) <- col_names
+  row.names(estimates) <- "Estimates"
   
   return(estimates)
 }
 
+#' Computes the probability of informed trading from ML estimates
+#' 
+#' @description
+#' Calling [compute_mlpin()] returns the probability of informed trading as 
+#' presented in the paper of Easley et al. (1996). 
+#' 
+#' The estimation procedure in [estimate_mlekop()] uses the logits of the 
+#' rates `alpha` and `delta` to ensure a more stable optimization. To arrive
+#' at the original parameter estimates the logistic transformation from 
+#' [logistic()] is applied. 
+#' 
+#' @param par A vector containing the parameter estimates from the optimization 
+#'   procedure. 
+#' @return A double holding the PIN estimate.
+#' @export
+#'
+#' @examples 
+#' # Simulate trades data.
+#' trades_data <- simulate_ekop()
+#' # Estimate the EKOP model.
+#' pin_optml <- estimate_mlekop(trades_data, methodLik="approx", 
+#'                              fnLik="compute_ekop_orig_lik")
+#' # Estimate the PIN from the parameter estimates.
+#' compute_mlpin(pin_optml$par)
+#' 
+#' @seealso
+#' * [estimate_mlekop()] for the calling function.
+#' 
+#' @references 
+#' * Easley, D., Kiefer, N., O’Hara, M., Paperman, J., 1996. Liquidity, 
+#'   information, and infrequently traded stocks. Journal of Finance 51, 
+#'   1405–1436.
+"compute_mlpin" <- function(par)
+{
+  # Transform logits.
+  alpha <- logistic(par[1])
+  epsilon <- par[2]
+  if (length(par) == 4)
+  {
+    # Original EKOP model.
+    mu <- par[4]
+  }
+  else {
+    mu <- par[3]
+  }
+  pin <- compute_pin(alpha, epsilon, mu)
+  
+  col_names            <- c('pin_ml')
+  estimates            <- data.frame(pin)
+  colnames(estimates)  <- col_names
+  row.names(estimates) <- "Estimates"
+  
+  return(estimates)
+}
 #' Computes the probability of informed trading
 #' 
 #' @description 
@@ -271,11 +334,12 @@
 #' for the number of trades per day (see the function references below).
 #' 
 #' @details 
+#' ## Maximum Likelihood functions
 #' There exist different likelihood variants that can be used in maximum 
 #' likelihood estimation of the EKOP model.
-#' * `computeEKOPOrigLik` uses the likelihood function proposed in the original 
+#' * `compute_ekop_orig_lik` uses the likelihood function proposed in the original 
 #'   paper of Easley et al. (1996).
-#' * `computeEKOPLik` uses a likelihood that is modified in regard to deal 
+#' * `compute_ekop_lik` uses a likelihood that is modified in regard to deal 
 #'   better with computational overflow. This likelihood function had been 
 #'   presented in slightly modified version by Easley et al. (2002).
 #' Furthermore, to deal with undefined function values like `NaN` or `inf` an
@@ -284,11 +348,29 @@
 #' `1e+6`, `-1e+6`, and `1e+6`, respectively and basically ignores the
 #' occurrence of undefined values.
 #' 
-#' @param data A `data.frame` containing the number of buyer- and 
-#'   seller-initiated trades. The data must be ordered in columns beginning 
-#'   with the number of mis-specified buys, mis_specified sells, number of 
-#'   buys, number of sells, and the sum of trades per day. See for an example 
-#'   [simulateEKOP()].
+#' ## Optimization algorithms 
+#' Optimization is performed gradient-based by using
+#' the \code{\link[stats]{optim}} function. The algorithm used is the `L-BFGS-B`
+#' that allows for parameter restrictions. This is necessary because we use for
+#' the probabilities `alpha` and `delta` the logistic transformation
+#' `exp()/(1+exp())` to produce valid probabilities in optimization.
+#' 
+#' In case that the gradient-based algorithm does not converge in between 100
+#' steps, a gradient-free optimization is applied. For gradient-free
+#' optimization \code{\link[dfoptim]{nmkb}}, a bounded `Nelder-Mead` algorithm
+#' is used. Derivative-free optimization is only performed after gradient-based
+#' optimization did not converge and the argument `grad_free` is `TRUE`.
+#' 
+#' The argument `fnscale` can be used to scale the likelihood function in case 
+#' of very large values (e.g. very large volumes) that might lead to number 
+#' overflow during computation. Note, `fnscale` must always be negative as the 
+#' likelihood function should be maximized.  
+#' 
+#' @param data A `data.frame` containing the number of buyer- and
+#'   seller-initiated trades. The data must be ordered in columns beginning with
+#'   the number of mis-specified buys, mis-specified sells, number of buys,
+#'   number of sells, and finally the sum of trades per day. See for an example
+#'   [simulate_ekop()].
 #' @param startpar A vector containing start parameters for maximum likelihood 
 #'   estimation. These must be starting values for the logit of alpha, epsilon,
 #'   the logit of delta, and mu. If no starting values are provided the function 
@@ -301,31 +383,44 @@
 #'   the original function by Easley et al. (1996) or the slightly modified 
 #'   variant of Easley et al. (2002) can be used. The latter one is known to 
 #'   also work better with large trading volumes. 
-#' @param fnscale A double specifying a scaling factor for the likelihood 
-#'   function,. This can in some cases help when the algorithm does not reach 
-#'   convergence. 
+#' @param fnscale A negatve double specifying a scaling factor for the
+#'   likelihood function. This can in some cases help when the algorithm does
+#'   not reach convergence or suffer from number overflow.
 #' @param trace An integer specifying which level of tracing should be used. 
 #'   see `?optim` for more details. 
 #' @param grad_free A logical indicating if gradient-free optimization should 
-#'   be used when gradient descent does not converge. If `TRUE` the optimization 
+#'   be used when gradient descent did not converge. If `TRUE` the optimization 
 #'   procedure \code{\link[dfoptim]{nmkb}} is used. 
+#' @param return_opt A logical indicating, if in addition to the PIN estimates 
+#'   also the results from the optimization procedure should be returned. If 
+#'   `TRUE` a list is returned with an element `pin_estimates` holding the 
+#'   PIN estimates and an element `opt_results` holding the output of the 
+#'   optimization procedure.
+#' @param opt_out (Deprecated) A logical indicating if only the output of the 
+#'   optimization procedure should be returned. Some older applications still 
+#'   rely on this output. In the next version this feature will be removed. 
+#'   Note that the default value is `TRUE`.  
+#' @return A `list` with all components as returned by 
+#'   \code{\link[stats]{optim}} or \code{\link[dfoptim]{nmkb}}.
 #' @export
-#' 
+#' @importFrom stats optim
+#' @importFrom dfoptim nmkb
+#'
 #' @examples 
 #' # Simulate data from the EKOP model. 
-#' trades_data <- simulateEKOP()
+#' trades_data <- simulate_ekop()
 #' # Estimate the EKOP model by maximum likelihood.
 #' pin_estml <- estimate_mlekop(trades_data, methodLik="approx", 
-#'                              fnLik="computeEKOPOrigLik")
+#'                              fnLik="compute_ekop_orig_lik", opt_out=FALSE)
 #'                    
 #' @seealso
-#' * [estimate_bayespin()] for estimating the PIN with a Bayesian approach that 
+#' * [estimate_pin()] for estimating the PIN with a Bayesian approach that 
 #'   needs only the total number of trades
 #' * [estimate_compml()] for estimating the PIN with the compressed EKOP model 
 #'   that needs only the total number of trades
-#' * [computeEKOPLik()] for the implementation of the likelihood function of 
+#' * [compute_ekop_lik()] for the implementation of the likelihood function of 
 #'   the paper of Easley et al. (2002)
-#' * [computeEKOPOrigLik()] for the implementation of the likelihood function 
+#' * [compute_ekop_orig_lik()] for the implementation of the likelihood function 
 #'   of the paper of Easley et al. (1996)
 #'   
 #' @references 
@@ -337,8 +432,10 @@
 #'   Finance 57.5, pp. 2185–2221. DOI: 10.1111/1540-6261.00493.
 "estimate_mlekop" <- function(data, startpar, T = 390, 
                               methodLik = c("precise", "approx"),
-                              fnLik = c("computeEKOPLik", "computeEKOPOrigLik"), 
-                              fnscale=-1, trace=0, grad_free=TRUE) 
+                              fnLik = c("compute_ekop_lik", 
+                                        "compute_ekop_orig_lik"), 
+                              fnscale=-1, trace=0, grad_free=TRUE,
+                              return_opt=FALSE, opt_out = TRUE) 
 {
   fnLik <- match.arg(fnLik)
   if (missing(startpar)) {
@@ -378,12 +475,105 @@
                                    upper=dfoptim_upper, control=dfoptim_ctrl)
   }
   
-  return(optim_res)	
+  # If the old version of the function is expected 
+  # return immediately. 
+  if (opt_out) return(optim_res)
+  
+  # Compute the PIN from the parameter estimates.
+  pin_estimates <- compute_mlpin(optim_res$par)
+  if (return_opt) {
+    return(list(pin_estimates=pin_estimates, opt_results=optim_res))
+  } else
+  {
+    return(pin_estimates)
+  }
 }
 
-"estimate_compml" <- function(data, startpar, T = 390, methodLik = c("precise", "approx"),
-                              sim = FALSE, mis = FALSE, mis.prob, misInd, fnscale=-1,
-                              trace=0, grad_free=TRUE) 
+#' Estimated the probability of informed trading of the compressed EKOP model
+#' 
+#' @description 
+#' Calling [estimate_compml()] estimates the probability of informed trading 
+#' (PIN) from the model of Jackson (2007) using maximum likelihood (ML). As 
+#' described in the paper by Jackson (2007) and similar to the Bayesian 
+#' estimation used in Grammig et al. (2015) this model needs only the number 
+#' of trades per day provided in the parameter `data`.
+#' 
+#' @details
+#' ## Optimization algorithms 
+#' Optimization is performed gradient-based by using the
+#' \code{\link[stats]{optim}} function. The algorithm used is the `L-BFGS-B`
+#' that allows for parameter restrictions. This is necessary because we use for
+#' the probability `alpha` the logistic transformation `exp()/(1+exp())` to
+#' produce valid probabilities in optimization.
+#' 
+#' In case that the gradient-based algorithm does not converge in between 100
+#' steps, a gradient-free optimization is applied. For gradient-free
+#' optimization \code{\link[dfoptim]{nmkb}}, a bounded `Nelder-Mead` algorithm
+#' is used. Derivative-free optimization is only performed after gradient-based
+#' optimization did not converge and the argument `grad_free` is `TRUE`.
+#' 
+#' The argument `fnscale` can be used to scale the likelihood function in case 
+#' of very large values (e.g. very large volumes) that might lead to number 
+#' overflow during computation. Note, `fnscale` must always be negative as the 
+#' likelihood function should be maximized.
+#'
+#' @param data A `vector` containing the number of trades per day.
+#' @param startpar A vector containing start parameters for maximum likelihood
+#'   estimation. These must be starting values for the logit of alpha, epsilon,
+#'   and mu. If no starting values are provided the function chooses the values
+#'   `(0, mean(trades)x.75/2, mean(trades)x.25/2)`.
+#' @param T A double specifying the minutes of a trading day.
+#' @param methodLik A character specifying, if undefined function values in 
+#'   optimization should be approximated by large defined values (`1e+6`).
+#'   This can help to make maximum likelihood estimation more stable. 
+#' @param fnscale A negatve double specifying a scaling factor for the
+#'   likelihood function. This can in some cases help when the algorithm does
+#'   not reach convergence or suffer from number overflow.
+#' @param trace An integer specifying which level of tracing should be used. 
+#'   see `?optim` for more details. 
+#' @param grad_free A logical indicating if gradient-free optimization should 
+#'   be used when gradient descent did not converge. If `TRUE` the optimization 
+#'   procedure \code{\link[dfoptim]{nmkb}} is used. 
+#' @param return_opt A logical indicating, if in addition to the PIN estimates 
+#'   also the results from the optimization procedure should be returned. If 
+#'   `TRUE` a list is returned with an element `pin_estimates` holding the 
+#'   PIN estimates and an element `opt_results` holding the output of the 
+#'   optimization procedure.
+#' @param opt_out (Deprecated) A logical indicating if only the output of the 
+#'   optimization procedure should be returned. Some older applications still 
+#'   rely on this output. In the next version this feature will be removed. 
+#'   Note that the default value is `TRUE`.  
+#' @return A `list` with all components as returned by 
+#'   \code{\link[stats]{optim}} or \code{\link[dfoptim]{nmkb}}.
+#' @export
+#' @importFrom stats optim
+#' @importFrom dfoptim nmkb
+#'
+#' @examples 
+#' # Simulate data from the EKOP model. 
+#' trades_data <- simulate_ekop()
+#' # Estimate the EKOP model by maximum likelihood.
+#' pin_estml <- estimate_compml(trades_data$Trades, methodLik="approx", 
+#'                              opt_out=FALSE)
+#'                    
+#' @seealso
+#' * [estimate_pin()] for estimating the PIN with a Bayesian approach that 
+#'   needs only the total number of trades
+#' * [estimate_mlekop()] for estimating the PIN with the original EKOP model 
+#'   that needs the numbers of buyer- and seller-initiated trades per day
+#' * [compute_comp_lik()] for the implementation of the likelihood function of 
+#'   the paper of Jackson (2007).
+#'   
+#' @references
+#' * Jackson, D., 2007. Infering trader behavior from transaction data: A trade 
+#'   count model. Journal of Computational and Graphical Statistics 12, 55-79.
+#' * Grammig, J., Theissen, E., Zehnder, L.S., 2015. Bayesian Estimation of the 
+#'   Probability of Informed Trading. Conference on Financial Econometrics & 
+#'   Empirical Asset Pricing 2016, Lancaster University
+"estimate_compml" <- function(data, startpar, T = 390, 
+                              methodLik = c("precise", "approx"),
+                              fnscale=-1, trace=0, grad_free=TRUE,
+                              return_opt=FALSE, opt_out=TRUE) 
 {
   if (missing(startpar)) {
     if (trace > 0)
@@ -395,7 +585,7 @@
   }
   
   ## optimization settings ##
-  optim_fn 	    <- computeCompLik
+  optim_fn 	    <- compute_comp_lik
   optim_Method 	<- "L-BFGS-B"
   optim_lower 	<- c(-1e+6, 1e-6, 1e-6)
   optim_upper 	<- c(1e+2, 1e+6, 1e+6)
@@ -419,6 +609,17 @@
                                    methodLik=methodLik, lower=dfoptim_lower,
                                    upper=dfoptim_upper, control=dfoptim_ctrl)
   }
-  return(optim_res)	
+  
+  # If the old version of the function is expected 
+  # return immediately. 
+  if (opt_out) return(optim_res)
+  
+  # Compute the PIN from the parameter estimates.
+  pin_estimates <- compute_mlpin(optim_res$par)
+  if (return_opt) {
+    return(list(pin_estimates=pin_estimates, opt_results=optim_res))
+  } else
+  {
+    return(pin_estimates)
+  }
 }
-

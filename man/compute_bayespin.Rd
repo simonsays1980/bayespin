@@ -4,10 +4,10 @@
 \alias{compute_bayespin}
 \title{Calculates estimates of the probability of informed trading}
 \usage{
-compute_bayespin(pin_estimates)
+compute_bayespin(mcmcest)
 }
 \arguments{
-\item{pin_estimates}{An \code{mcmcest} object of the \code{finmix} package containing
+\item{mcmcest}{An \code{mcmcest} object of the \code{finmix} package containing
 all estimated parameters from the finite mixture distribution of the
 compressed EKOP model.}
 }
