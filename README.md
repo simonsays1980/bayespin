@@ -1,4 +1,4 @@
-[![R-CMD-check](https://github.com/simonsays1980/bayespin/actions/workflows/r-cmd-check.yml/badge.svg?branch=documentation)](https://github.com/simonsays1980/bayespin/actions/workflows/r-cmd-check.yml) [![GPLv3 license](https://img.shields.io/badge/License-GPLv3-blue.svg)](http://perso.crans.org/besson/LICENSE.html) 
+[![R-CMD-check](https://github.com/simonsays1980/bayespin/actions/workflows/r-cmd-check.yml/badge.svg?branch=documentation)](https://github.com/simonsays1980/bayespin/actions/workflows/r-cmd-check.yml) [![GPLv3 license](https://img.shields.io/badge/License-GPLv3-blue.svg)](http://perso.crans.org/besson/LICENSE.html) [![GitHub tag](https://img.shields.io/github/tag/simonsays1980/bayespin.svg)](https://GitHub.com/simonsays1980/bayespin/tags/)
 [![Linux](https://svgshare.com/i/Zhy.svg)](https://svgshare.com/i/Zhy.svg) [![macOS](https://svgshare.com/i/ZjP.svg)](https://svgshare.com/i/ZjP.svg) [![Windows](https://svgshare.com/i/ZhY.svg)](https://svgshare.com/i/ZhY.svg)
 
 
