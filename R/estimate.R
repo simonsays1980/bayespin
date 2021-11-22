@@ -288,7 +288,6 @@
     mu   <- par[3]
     estimates  <- data.frame('alpha'   = c(alpha), 
                              'epsilon' = c(epsilon),
-                             'delta'   = c(delta),
                              'mu'      = c(mu),
                              row.names = c('ML'))
   }
