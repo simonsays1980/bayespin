@@ -1,4 +1,7 @@
-[![R-CMD-check](https://github.com/simonsays1980/bayespin/actions/workflows/r-cmd-check.yml/badge.svg?branch=documentation)](https://github.com/simonsays1980/bayespin/actions/workflows/r-cmd-check.yml)
+[![R-CMD-check](https://github.com/simonsays1980/bayespin/actions/workflows/r-cmd-check.yml/badge.svg?branch=documentation)](https://github.com/simonsays1980/bayespin/actions/workflows/r-cmd-check.yml) [![GPLv3 license](https://img.shields.io/badge/License-GPLv3-blue.svg)](http://perso.crans.org/besson/LICENSE.html) 
+[![Linux](https://svgshare.com/i/Zhy.svg)](https://svgshare.com/i/Zhy.svg) [![macOS](https://svgshare.com/i/ZjP.svg)](https://svgshare.com/i/ZjP.svg) [![Windows](https://svgshare.com/i/ZhY.svg)](https://svgshare.com/i/ZhY.svg)
+
+
 
 # bayespin
 **An R package for Bayesian estimation of the probability of informed trading**
