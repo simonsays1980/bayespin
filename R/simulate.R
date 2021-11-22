@@ -105,7 +105,7 @@ NULL
 #'   Probability of Informed Trading. Conference on Financial Econometrics & 
 #'   Empirical Asset Pricing 2016, Lancaster University
 "simulate_ekop" <- function(size = 1000, alpha = 0.2, epsilon = 0.2, 
-                           delta = 0.5, mu = 0.02, T = 60 * 6.5) 
+                            delta = 0.5, mu = 0.02, T = 60 * 6.5) 
 {
   trade.sample <- simulateEKOP_cc(as.integer(size), as.double(alpha), 
                                   as.double(epsilon), as.double(delta), 

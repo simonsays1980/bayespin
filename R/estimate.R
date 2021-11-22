@@ -118,16 +118,15 @@
           mcmc_parest_st1997a <- finmix::mcmcestimate(mcmc_results, 
                                                       method='Stephens1997a')
           pin_est_st1997a    <- compute_bayespin(mcmc_parest_st1997a)[1,9:12]
-          colnames(pin_est_st1997a) <- c('alpha_ieavg_stephens1997a', 
-                                         'epsilon_ieavg_stephens1997a',
-                                         'mu_ieavg_stephens1997a', 
-                                         'pin_ieavg_stephens1997a')
-          pin_estimates      <- cbind(pin_estimates, pin_est_st1997a)
+          colnames(pin_est_st1997a) <- c('alpha', 'epsilon', 'mu', 'pin')
+          row.names(pin_est_st1997a) <- "IEAVG_St1997a"
+          pin_estimates      <- rbind(pin_estimates, pin_est_st1997a)
         },
         error= function(err)
         {
           print(err)
-          pin_estimates <- cbind(pin_estimates, rep(NA, 4))
+          pin_estimates <- rbind(pin_estimates, rep(NA, 4))
+          row.names(pin_estimates)[4] <- 'IEAVG_St1997a'
         },
         warning=function(warn) {}
       )
@@ -139,16 +138,15 @@
                                                       method='Stephens1997b', 
                                                       fdata=mcmc_fdata)
           pin_est_st1997b    <- compute_bayespin(mcmc_parest_st1997b)[1,9:12]
-          colnames(pin_est_st1997b) <- c('alpha_ieavg_stephens1997b', 
-                                         'epislon_ieavg_stephens1997b',
-                                         'mu_ieavg_stephens1997b', 
-                                         'pin_ieavg_stephens1997b')
-          pin_estimates      <- cbind(pin_estimates, pin_est_st1997b)
+          colnames(pin_est_st1997b) <- c('alpha', 'epsilon', 'mu', 'pin')
+          row.names(pin_est_st1997b) <- c('IEAVG_St1997b')
+          pin_estimates      <- rbind(pin_estimates, pin_est_st1997b)
         },
         error = function(err)
         {
           print(err)
-          pin_estimates <- cbind(pin_estimates, rep(NA, 4))
+          pin_estimates <- rbind(pin_estimates, rep(NA, 4))
+          row.names(pin_estimates)[4] <- 'IEAVG_St1997b'
         },
         warning=function(warn) {}
       )
@@ -228,15 +226,13 @@
   pin_bml   <- compute_pin(alpha_bml, epsilon_bml, mu_bml)
   pin_ieavg <- compute_pin(alpha_ieavg, epsilon_ieavg, mu_ieavg)
 
-  col_names <- c('alpha_map', 'epsilon_map', 'mu_map', 'pin_map', 
-                 'alpha_bml', 'epsilon_bml', 'mu_bml', 'pin_bml',
-                 'alpha_ieavg', 'epsilon_ieavg', 'mu_ieavg', 'pin_ieavg')
-  estimates <- data.frame(alpha_map, epsilon_map, mu_map, pin_map,
-                          alpha_bml, epsilon_bml, mu_bml, pin_bml,
-                          alpha_ieavg, epsilon_ieavg, mu_ieavg, pin_ieavg)
-  colnames(estimates) <- col_names
-  row.names(estimates) <- "Estimates"
-  
+  estimates <- data.frame('alpha'   = c(alpha_map, alpha_bml, alpha_ieavg), 
+                          'epsilon' = c(epsilon_map, epsilon_bml, 
+                                        epsilon_ieavg),
+                          'mu'      = c(mu_map, mu_bml, mu_ieavg),
+                          'pin'     = c(pin_map, pin_bml, pin_ieavg),
+                          row.names = c('MAP', 'BML', 'IEAVG'))
+
   return(estimates)
 }
 
@@ -275,22 +271,30 @@
 "compute_mlpin" <- function(par)
 {
   # Transform logits.
-  alpha <- logistic(par[1])
+  alpha   <- logistic(par[1])
   epsilon <- par[2]
   if (length(par) == 4)
   {
     # Original EKOP model.
-    mu <- par[4]
+    delta <- logistic(par[3])
+    mu    <- par[4]
+    estimates  <- data.frame('alpha'   = c(alpha), 
+                             'epsilon' = c(epsilon),
+                             'delta'   = c(delta),
+                             'mu'      = c(mu),
+                             row.names = c('ML'))
   }
   else {
-    mu <- par[3]
+    mu   <- par[3]
+    estimates  <- data.frame('alpha'   = c(alpha), 
+                             'epsilon' = c(epsilon),
+                             'delta'   = c(delta),
+                             'mu'      = c(mu),
+                             row.names = c('ML'))
   }
-  pin <- compute_pin(alpha, epsilon, mu)
+  pin <- data.frame('pin' = compute_pin(alpha, epsilon, mu))
   
-  col_names            <- c('pin_ml')
-  estimates            <- data.frame(pin)
-  colnames(estimates)  <- col_names
-  row.names(estimates) <- "Estimates"
+  estimates            <- cbind(estimates, pin)
   
   return(estimates)
 }
@@ -481,6 +485,7 @@
   
   # Compute the PIN from the parameter estimates.
   pin_estimates <- compute_mlpin(optim_res$par)
+  pin_estimates
   if (return_opt) {
     return(list(pin_estimates=pin_estimates, opt_results=optim_res))
   } else
